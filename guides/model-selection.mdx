@@ -1,0 +1,191 @@
+---
+title: "Choose the Right Model for Your Use Case"
+sidebarTitle: "Model Selection"
+description: "Select models by provider-prefixed name, alias, or let TokenHub route automatically. Compare tiers and pick the right balance of quality, speed, and cost."
+---
+
+TokenHub gives you access to dozens of models across OpenAI, Anthropic, Google, Mistral, and other providers through a single API. You can specify a model by its full provider-prefixed name, use a TokenHub alias that abstracts the provider away, or let TokenHub choose automatically based on your routing strategy.
+
+## How model selection works
+
+There are three ways to specify a model in your request:
+
+1. **Provider-prefixed name** — explicitly targets a specific model from a specific provider: `openai/gpt-4o`, `anthropic/claude-3-5-sonnet`, `google/gemini-1.5-pro`
+2. **TokenHub alias** — a stable identifier like `premium`, `balanced`, or `economy` that maps to the best available model in that tier at request time
+3. **Auto-routing** — omit the `model` field entirely and set `X-Inferoute-Strategy: cost` or `X-Inferoute-Strategy: latency` to let TokenHub decide
+
+## Model categories
+
+<CardGroup cols={2}>
+  <Card title="Premium" icon="star">
+    Highest quality for complex reasoning, long-form writing, and multi-step tasks. Best when output quality directly affects user experience.
+
+    - `openai/gpt-4o`
+    - `anthropic/claude-3-5-sonnet`
+    - Alias: `premium`
+  </Card>
+  <Card title="Balanced" icon="scale">
+    Strong capability at moderate cost. A good default for most production workloads where you want solid quality without paying for top-tier.
+
+    - `openai/gpt-4o-mini`
+    - `anthropic/claude-3-haiku`
+    - Alias: `balanced`
+  </Card>
+  <Card title="Economy" icon="bolt">
+    Fastest and cheapest. Ideal for classification, extraction, summarization, and any task where throughput matters more than nuance.
+
+    - `openai/gpt-4o-mini`
+    - `anthropic/claude-3-haiku`
+    - `google/gemini-flash`
+    - Alias: `economy`
+  </Card>
+  <Card title="Long context" icon="file-lines">
+    For documents, codebases, and conversation histories that exceed standard context windows.
+
+    - `anthropic/claude-3-5-sonnet` (200k tokens)
+    - `google/gemini-1.5-pro` (1M tokens)
+    - Alias: `long-context`
+  </Card>
+</CardGroup>
+
+## Recommended models by use case
+
+| Use case | Recommended model | Why |
+|---|---|---|
+| Complex reasoning, analysis | `openai/gpt-4o`, `anthropic/claude-3-5-sonnet` | Highest instruction-following and reasoning accuracy |
+| Chatbots, customer support | `openai/gpt-4o-mini`, `anthropic/claude-3-haiku` | Low latency, cost-effective at high volume |
+| Document summarization | `anthropic/claude-3-5-sonnet`, `google/gemini-1.5-pro` | Long context windows handle full documents |
+| Classification / labeling | `openai/gpt-4o-mini`, `google/gemini-flash` | Simple tasks don't need expensive models |
+| Embeddings (search, RAG) | `openai/text-embedding-3-small`, `openai/text-embedding-3-large` | Purpose-built for vector representations |
+| Code generation | `openai/gpt-4o`, `anthropic/claude-3-5-sonnet` | Strong code comprehension and generation |
+
+## Model tier comparison
+
+<Tabs>
+  <Tab title="Premium">
+    Premium models deliver the best output quality across reasoning, writing, and instruction-following. Use them when accuracy and response quality are critical.
+
+    **Models:** `openai/gpt-4o`, `anthropic/claude-3-5-sonnet`
+
+    **Alias:** `premium`
+
+    ```python python
+    response = client.chat.completions.create(
+        model="openai/gpt-4o",
+        messages=[
+            {"role": "user", "content": "Analyze the trade-offs of microservices vs monolithic architecture for a startup with 5 engineers."},
+        ],
+    )
+    ```
+
+    ```javascript node.js
+    const response = await client.chat.completions.create({
+      model: "openai/gpt-4o",
+      messages: [
+        {
+          role: "user",
+          content:
+            "Analyze the trade-offs of microservices vs monolithic architecture for a startup with 5 engineers.",
+        },
+      ],
+    });
+    ```
+
+    **Typical cost:** ~$5–$15 per 1M input tokens
+  </Tab>
+  <Tab title="Balanced">
+    Balanced models cover most production workloads well. They handle nuanced tasks at a fraction of premium model cost.
+
+    **Models:** `openai/gpt-4o-mini`, `anthropic/claude-3-haiku`
+
+    **Alias:** `balanced`
+
+    ```python python
+    response = client.chat.completions.create(
+        model="openai/gpt-4o-mini",
+        messages=[
+            {"role": "user", "content": "Draft a professional out-of-office email reply."},
+        ],
+    )
+    ```
+
+    ```javascript node.js
+    const response = await client.chat.completions.create({
+      model: "openai/gpt-4o-mini",
+      messages: [
+        {
+          role: "user",
+          content: "Draft a professional out-of-office email reply.",
+        },
+      ],
+    });
+    ```
+
+    **Typical cost:** ~$0.15–$0.40 per 1M input tokens
+  </Tab>
+  <Tab title="Economy">
+    Economy models are optimized for throughput and cost. Use them for tasks with clear, bounded outputs where you process high volumes.
+
+    **Models:** `openai/gpt-4o-mini`, `anthropic/claude-3-haiku`, `google/gemini-flash`
+
+    **Alias:** `economy`
+
+    ```python python
+    response = client.chat.completions.create(
+        model="economy",  # TokenHub alias — routes to cheapest available
+        messages=[
+            {"role": "user", "content": "Classify this support ticket as: billing, technical, or general."},
+        ],
+    )
+    ```
+
+    ```javascript node.js
+    const response = await client.chat.completions.create({
+      model: "economy", // TokenHub alias — routes to cheapest available
+      messages: [
+        {
+          role: "user",
+          content:
+            "Classify this support ticket as: billing, technical, or general.",
+        },
+      ],
+    });
+    ```
+
+    **Typical cost:** ~$0.07–$0.25 per 1M input tokens
+  </Tab>
+</Tabs>
+
+## Provider-agnostic code with aliases
+
+When you hardcode a provider-prefixed model name like `openai/gpt-4o`, swapping providers requires a code change. TokenHub aliases let you decouple your application from any specific provider.
+
+```python python
+# Hardcoded — requires code change to switch providers
+model = "openai/gpt-4o"
+
+# Alias — TokenHub resolves to the best model in this tier
+# You can update the alias mapping in the dashboard without touching code
+model = "premium"
+```
+
+You can configure what each alias resolves to in the [Model Aliases](https://app.tokenhub.ai/aliases) section of your dashboard. This lets you A/B test new models, react to provider outages, or optimize costs — all without deploying code changes.
+
+## Embeddings
+
+For embeddings, specify the model directly. TokenHub passes the request to the provider without modification.
+
+```python python
+response = client.embeddings.create(
+    model="openai/text-embedding-3-small",
+    input="TokenHub routes your LLM requests intelligently.",
+)
+
+embedding = response.data[0].embedding
+print(f"Embedding dimensions: {len(embedding)}")  # 1536 for text-embedding-3-small
+```
+
+| Model | Dimensions | Best for |
+|---|---|---|
+| `openai/text-embedding-3-small` | 1536 | High-volume search, RAG pipelines where cost matters |
+| `openai/text-embedding-3-large` | 3072 | Highest accuracy retrieval, semantic similarity |

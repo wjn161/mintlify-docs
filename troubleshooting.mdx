@@ -1,0 +1,132 @@
+---
+title: "Troubleshoot Common TokenHub Issues"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose and fix the most common errors you may encounter when integrating with TokenHub, including auth failures, rate limits, and provider errors."
+---
+
+This page covers the errors and issues most commonly reported by TokenHub customers, along with the steps to resolve each one. If you cannot resolve an issue using the guidance below, collect the `X-Inferoute-Request-Id` from the failing response and contact [support@tokenhub.ai](mailto:support@tokenhub.ai).
+
+## Common errors
+
+<AccordionGroup>
+
+  <Accordion title="401 Unauthorized — invalid or missing API key">
+    Your request did not include a valid API key, or the key has been revoked.
+
+    **Check the following:**
+
+    1. Your `Authorization` header must use the `Bearer` scheme:
+       ```bash
+       Authorization: Bearer th-...
+       ```
+    2. Confirm the key exists and has not been revoked in **Settings → API Keys**.
+    3. Ensure you are not accidentally passing an OpenAI key or another provider's key to the TokenHub endpoint.
+    4. If you recently rotated a key, make sure your application has been updated to use the new value and that the old key has not been revoked before the update was deployed.
+  </Accordion>
+
+  <Accordion title="429 Too Many Requests — rate limit exceeded">
+    Your API key has exceeded its requests-per-minute (RPM) or tokens-per-minute (TPM) limit.
+
+    **Steps to resolve:**
+
+    1. Read the `Retry-After` header in the response — it tells you how many seconds to wait before retrying.
+    2. Implement exponential backoff in your client code. See the [Rate Limits](/configuration/rate-limits) page for Python and Node.js examples.
+    3. Check your current usage against your limits in the **Usage** section of the dashboard.
+    4. If you consistently hit limits under normal load, contact [support@tokenhub.ai](mailto:support@tokenhub.ai) to request a limit increase for your plan.
+  </Accordion>
+
+  <Accordion title="402 Payment Required — usage limit reached">
+    The API key used for this request has reached its monthly token or spend limit.
+
+    **Steps to resolve:**
+
+    1. Go to **Settings → API Keys**, find the key, and click **Edit → Usage Limits**.
+    2. Increase the monthly token limit or monthly spend limit, or remove the limit if it is no longer needed.
+    3. If you need to add funds to your account, go to **Settings → Billing**.
+
+    See the [Usage Limits](/configuration/usage-limits) page for guidance on setting appropriate limits per key.
+  </Accordion>
+
+  <Accordion title="404 Model not found — invalid model name">
+    The model name you specified does not exist or is not available on your plan.
+
+    **Steps to resolve:**
+
+    1. Retrieve the current list of supported models:
+       ```bash
+       curl https://api.tokenhub.ai/v1/models \
+         -H "Authorization: Bearer $TOKENHUB_API_KEY"
+       ```
+    2. Check that the model name in your request exactly matches an `id` value from the response. Model names are case-sensitive.
+    3. If you are using a provider-prefixed name (for example, `openai/gpt-4o`), confirm that the prefix is correct.
+  </Accordion>
+
+  <Accordion title="500 / Provider error — provider outage or internal error">
+    The request failed due to an error on the provider's side or an unexpected internal error.
+
+    **Steps to resolve:**
+
+    1. Check the TokenHub status page at [status.tokenhub.ai](https://status.tokenhub.ai) for active incidents.
+    2. If the error is provider-specific, check the affected provider's own status page.
+    3. Enable **fallback routing** in the dashboard (**Routing → Fallback**) so that TokenHub automatically retries failed requests on a backup provider.
+    4. If the error is intermittent and not tied to a known incident, retry the request. If it persists, contact support with the `X-Inferoute-Request-Id` from the failing response.
+  </Accordion>
+
+  <Accordion title="Slow responses — higher than expected latency">
+    Response times are significantly higher than your baseline.
+
+    **Steps to resolve:**
+
+    1. In the dashboard, go to **Routing → Strategy** and switch to **Latency-optimized** mode. This selects the provider with the lowest observed response time for each request.
+    2. Check the `X-Inferoute-Provider` response header to see which provider served the request. If a normally fast provider is slow, check its status page.
+    3. Avoid unnecessarily large `max_tokens` values — providers begin generating before knowing the full output length, but very high limits can affect scheduling.
+    4. If the issue is specific to one model or provider, try an equivalent model on a different provider using a provider-prefixed name.
+  </Accordion>
+
+  <Accordion title="Wrong provider being used — unexpected provider in response">
+    TokenHub is routing your request to a provider you did not intend to use.
+
+    **Steps to resolve:**
+
+    1. Use a provider-prefixed model name to explicitly target the provider you want:
+       ```python python
+       response = client.chat.completions.create(
+           model="openai/gpt-4o",  # pins to OpenAI specifically
+           messages=[{"role": "user", "content": "Hello!"}],
+       )
+       ```
+    2. Check the `X-Inferoute-Provider` header in the response to confirm which provider served the request.
+    3. Review your routing strategy in **Routing → Strategy**. Cost-optimized or latency-optimized strategies may select a different provider than you expect based on current conditions.
+  </Accordion>
+
+</AccordionGroup>
+
+## Debugging tips
+
+### Identify the serving provider
+
+Every TokenHub response includes an `X-Inferoute-Provider` header that tells you which provider handled the request:
+
+```bash
+X-Inferoute-Provider: anthropic
+```
+
+Use this to confirm routing behavior or narrow down the source of an error.
+
+### Get a request ID for support tickets
+
+Every response includes an `X-Inferoute-Request-Id` header with a unique identifier for the request:
+
+```bash
+X-Inferoute-Request-Id: req_01j9z...
+```
+
+Include this value whenever you contact support — it allows the team to look up the full request trace immediately.
+
+### Enable verbose logging
+
+In the dashboard, go to **Settings → Logging** and enable **Verbose request logs**. This records full request and response metadata (excluding body content) to help you diagnose patterns across multiple requests.
+
+## Status page
+
+Check [status.tokenhub.ai](https://status.tokenhub.ai) for real-time information on platform health, active incidents, and maintenance windows. You can subscribe to status updates by email or webhook from that page.

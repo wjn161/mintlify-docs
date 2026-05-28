@@ -1,0 +1,92 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "TokenHub",
+  "theme": "luma",
+  "colors": {
+    "primary": "#235ad6",
+    "light": "#689eea"
+  },
+  "logo": {
+    "light": "https://media.brand.dev/67c5dfb8-f7f5-411f-90c7-1e75239fe4ad.svg",
+    "dark": "https://media.brand.dev/67c5dfb8-f7f5-411f-90c7-1e75239fe4ad.svg"
+  },
+  "favicon": "https://media.brand.dev/0153052c-ecae-40a8-abda-bbdf94883e6d.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/tkhub-ai"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/routing",
+              "concepts/providers",
+              "concepts/models",
+              "concepts/tokens"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/first-request",
+              "guides/model-selection",
+              "guides/fallback-routing",
+              "guides/cost-optimization"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/api-keys",
+              "configuration/rate-limits",
+              "configuration/usage-limits"
+            ]
+          },
+          {
+            "group": "Support",
+            "pages": [
+              "faq",
+              "troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/errors"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/chat-completions",
+              "api-reference/completions",
+              "api-reference/embeddings",
+              "api-reference/models"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

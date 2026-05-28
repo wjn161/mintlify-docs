@@ -1,0 +1,225 @@
+---
+title: "Optimize LLM Costs with TokenHub Routing"
+sidebarTitle: "Cost Optimization"
+description: "Reduce AI spend using cost-optimized routing, right-sizing models by task complexity, usage caps, and dashboard monitoring — without changing application logic."
+---
+
+TokenHub sits between your application and LLM providers, which gives it visibility into every request and the ability to route intelligently based on cost. This guide walks through four strategies to reduce your LLM spend, from using built-in routing headers to monitoring waste in the dashboard.
+
+## Cost reference
+
+Before optimizing, it helps to understand relative model costs. The figures below are approximate input token prices as of mid-2025. Output tokens are typically 3–4x more expensive.
+
+| Model | Input cost (per 1M tokens) | Best for |
+|---|---|---|
+| `openai/gpt-4o` | ~$5.00 | Complex reasoning, high-stakes outputs |
+| `anthropic/claude-3-5-sonnet` | ~$3.00 | Long documents, nuanced writing |
+| `openai/gpt-4o-mini` | ~$0.15 | Most production tasks, high volume |
+| `anthropic/claude-3-haiku` | ~$0.25 | Fast responses, classification |
+| `google/gemini-flash` | ~$0.07 | Highest throughput, simple tasks |
+
+Routing a classification task from `openai/gpt-4o` to `openai/gpt-4o-mini` is a **33x cost reduction** with equivalent accuracy for simple tasks.
+
+## Cost optimization workflow
+
+<Steps>
+  <Step title="Audit your current model usage">
+    Open the [Usage dashboard](https://app.tokenhub.ai/usage) and filter by model to see where your spend is concentrated. Sort by cost descending to find the highest-impact models.
+
+    Look for requests going to premium models that could be handled by cheaper alternatives — classification, extraction, short summarization, and Q&A over structured data are common candidates.
+  </Step>
+
+  <Step title="Enable cost-optimized routing for eligible requests">
+    Add the `X-Inferoute-Strategy: cost` header to requests where output quality is not critically sensitive. TokenHub will select the cheapest model that can satisfy the request at that moment.
+
+    ```python python
+    from openai import OpenAI
+
+    client = OpenAI(
+        api_key="th-your-api-key",
+        base_url="https://api.tokenhub.ai/v1",
+    )
+
+    response = client.chat.completions.create(
+        model="auto",
+        messages=[
+            {"role": "user", "content": "Classify the following email as spam or not spam: ..."},
+        ],
+        extra_headers={
+            "X-Inferoute-Strategy": "cost",
+        },
+    )
+    ```
+
+    <Tip>
+      Use the `economy` model alias instead of specifying `model="auto"` with the cost strategy header. The `economy` alias always maps to the cheapest model tier and works without any extra headers.
+
+      ```python python
+      response = client.chat.completions.create(
+          model="economy",
+          messages=[{"role": "user", "content": "Is this review positive or negative?"}],
+      )
+      ```
+    </Tip>
+  </Step>
+
+  <Step title="Right-size models by task complexity">
+    Not all tasks need the same model. Segment your request types and assign the cheapest model that meets your quality bar for each.
+
+    <CodeGroup>
+
+    ```python python
+    def classify_text(text: str) -> str:
+        """Simple classification — use economy model."""
+        response = client.chat.completions.create(
+            model="openai/gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Classify the input as: positive, negative, or neutral. Reply with one word."},
+                {"role": "user", "content": text},
+            ],
+            max_tokens=5,
+        )
+        return response.choices[0].message.content.strip()
+
+
+    def generate_report(data: dict) -> str:
+        """Complex synthesis — use premium model."""
+        response = client.chat.completions.create(
+            model="openai/gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a financial analyst. Write a detailed report based on the provided data."},
+                {"role": "user", "content": str(data)},
+            ],
+        )
+        return response.choices[0].message.content
+    ```
+
+    ```javascript node.js
+    // Simple classification — use economy model
+    async function classifyText(text) {
+      const response = await client.chat.completions.create({
+        model: "openai/gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Classify the input as: positive, negative, or neutral. Reply with one word.",
+          },
+          { role: "user", content: text },
+        ],
+        max_tokens: 5,
+      });
+      return response.choices[0].message.content.trim();
+    }
+
+    // Complex synthesis — use premium model
+    async function generateReport(data) {
+      const response = await client.chat.completions.create({
+        model: "openai/gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a financial analyst. Write a detailed report based on the provided data.",
+          },
+          { role: "user", content: JSON.stringify(data) },
+        ],
+      });
+      return response.choices[0].message.content;
+    }
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Set usage caps per API key">
+    In the [API Keys](https://app.tokenhub.ai/keys) section of the dashboard, set a monthly spend limit per key. When the cap is reached, the key returns a `429` response instead of continuing to accrue charges.
+
+    This is useful for:
+
+    - Per-customer keys in multi-tenant applications (cap individual customer spend)
+    - Development and staging keys (prevent accidental large runs)
+    - Feature-specific keys (limit spend on a specific product feature)
+  </Step>
+
+  <Step title="Monitor and iterate">
+    Return to the [Usage dashboard](https://app.tokenhub.ai/usage) weekly. Filter by:
+
+    - **Model** — confirm that cost-optimized routing is being applied to the right request types
+    - **Provider** — check whether any provider is disproportionately expensive
+    - **Time of day** — spot unexpected spikes that may indicate runaway processes or prompt injection
+
+    Use the cost trend chart to measure the impact of each optimization step you apply.
+  </Step>
+</Steps>
+
+## Use cost-optimized routing for the request
+
+The `X-Inferoute-Strategy: cost` header and the `economy` alias are the fastest way to reduce spend without changing your prompts or application logic.
+
+<CodeGroup>
+
+```python python
+# Strategy header: TokenHub picks the cheapest available model
+response = client.chat.completions.create(
+    model="auto",
+    messages=[{"role": "user", "content": "Extract all dates from this text: ..."}],
+    extra_headers={"X-Inferoute-Strategy": "cost"},
+)
+
+# Economy alias: equivalent to the cost strategy, no extra header needed
+response = client.chat.completions.create(
+    model="economy",
+    messages=[{"role": "user", "content": "Extract all dates from this text: ..."}],
+)
+```
+
+```javascript node.js
+// Strategy header: TokenHub picks the cheapest available model
+const response = await client.chat.completions.create(
+  {
+    model: "auto",
+    messages: [{ role: "user", content: "Extract all dates from this text: ..." }],
+  },
+  {
+    headers: { "X-Inferoute-Strategy": "cost" },
+  }
+);
+
+// Economy alias: equivalent to the cost strategy, no extra header needed
+const response2 = await client.chat.completions.create({
+  model: "economy",
+  messages: [{ role: "user", content: "Extract all dates from this text: ..." }],
+});
+```
+
+```bash curl
+# Strategy header
+curl https://api.tokenhub.ai/v1/chat/completions \
+  -H "Authorization: Bearer th-your-api-key" \
+  -H "Content-Type: application/json" \
+  -H "X-Inferoute-Strategy: cost" \
+  -d '{"model": "auto", "messages": [{"role": "user", "content": "Extract all dates from this text: ..."}]}'
+
+# Economy alias
+curl https://api.tokenhub.ai/v1/chat/completions \
+  -H "Authorization: Bearer th-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "economy", "messages": [{"role": "user", "content": "Extract all dates from this text: ..."}]}'
+```
+
+</CodeGroup>
+
+## Task complexity guide
+
+Use this as a starting point for assigning models in your application. Adjust based on your own quality evaluations.
+
+| Task type | Recommended model | Rationale |
+|---|---|---|
+| Sentiment classification | `google/gemini-flash` or `openai/gpt-4o-mini` | Binary or n-class output, no nuance required |
+| Entity extraction | `openai/gpt-4o-mini` | Structured output, well-defined task |
+| Short summarization | `anthropic/claude-3-haiku` | Concise output, lower reasoning load |
+| Customer support drafting | `openai/gpt-4o-mini` | Tone matters but complexity is low |
+| Long document analysis | `anthropic/claude-3-5-sonnet` | Needs large context window and reasoning |
+| Code review / generation | `openai/gpt-4o` | High accuracy requirement, complex logic |
+| Legal / compliance drafting | `openai/gpt-4o` or `anthropic/claude-3-5-sonnet` | High stakes, accuracy critical |

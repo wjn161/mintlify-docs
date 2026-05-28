@@ -1,0 +1,243 @@
+---
+title: "POST /v1/chat/completions"
+sidebarTitle: "Chat completions"
+description: "Create chat completions. Accepts messages array and model, returns assistant message. Supports streaming, function calling, and all OpenAI-compatible params."
+---
+
+The chat completions endpoint is the primary way to interact with language models on TokenHub. You send a `messages` array representing a conversation, and the API returns the next assistant message. The request body is fully OpenAI-compatible — any payload that works with the OpenAI Chat Completions API works here.
+
+## Endpoint
+
+```
+POST https://api.tokenhub.ai/v1/chat/completions
+```
+
+## Request parameters
+
+### Body
+
+<ParamField body="model" type="string" required>
+  The model to use for this request. You can use the short name (`gpt-4o`) or the provider-prefixed name (`openai/gpt-4o`, `anthropic/claude-3-5-sonnet`). Retrieve the full list of available IDs from [GET /v1/models](/api-reference/models).
+</ParamField>
+
+<ParamField body="messages" type="object[]" required>
+  The conversation history as an array of message objects. Each object must include `role` (`system`, `user`, or `assistant`) and `content` (string).
+</ParamField>
+
+<ParamField body="max_tokens" type="integer">
+  Maximum number of tokens to generate in the response. Defaults to the model's maximum output.
+</ParamField>
+
+<ParamField body="temperature" type="number" default="1">
+  Sampling temperature between `0` and `2`. Lower values produce more deterministic output; higher values produce more varied output.
+</ParamField>
+
+<ParamField body="stream" type="boolean" default="false">
+  When `true`, the response is streamed as server-sent events (SSE). Each event contains a partial `delta` object. The stream ends with `data: [DONE]`.
+</ParamField>
+
+<ParamField body="top_p" type="number" default="1">
+  Nucleus sampling parameter. The model considers only the tokens comprising the top `top_p` probability mass.
+</ParamField>
+
+<ParamField body="n" type="integer" default="1">
+  Number of completion choices to generate. Each choice is an independent generation.
+</ParamField>
+
+<ParamField body="stop" type="string | string[]">
+  One or more sequences where the model stops generating. The stop sequence itself is not included in the output.
+</ParamField>
+
+### Headers
+
+<ParamField header="X-Inferoute-Strategy" type="string">
+  Routing strategy for this request. Accepted values: `cost`, `latency`, `availability`, `round-robin`. Defaults to your account's configured strategy.
+</ParamField>
+
+<ParamField header="X-Inferoute-Fallback" type="string">
+  Comma-separated list of fallback model IDs to try if the primary model is unavailable. Example: `anthropic/claude-3-5-sonnet,openai/gpt-4-turbo`.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="id" type="string">
+  Unique identifier for this completion request.
+</ResponseField>
+
+<ResponseField name="object" type="string">
+  Always `"chat.completion"`.
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  The model that actually served the request. May differ from your requested model when a fallback was used.
+</ResponseField>
+
+<ResponseField name="choices" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="index" type="integer">
+      Zero-based index of this choice.
+    </ResponseField>
+    <ResponseField name="message" type="object">
+      <Expandable title="properties">
+        <ResponseField name="role" type="string">
+          Always `"assistant"`.
+        </ResponseField>
+        <ResponseField name="content" type="string">
+          The generated text content.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="finish_reason" type="string">
+      Why generation stopped: `"stop"`, `"length"`, `"content_filter"`, or `"tool_calls"`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  <Expandable title="properties">
+    <ResponseField name="prompt_tokens" type="integer">
+      Number of tokens in the input messages.
+    </ResponseField>
+    <ResponseField name="completion_tokens" type="integer">
+      Number of tokens generated.
+    </ResponseField>
+    <ResponseField name="total_tokens" type="integer">
+      Sum of prompt and completion tokens.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Response headers
+
+| Header | Description |
+|--------|-------------|
+| `X-Inferoute-Provider` | The provider that served the request (e.g., `openai`, `anthropic`) |
+| `X-Inferoute-Request-Id` | Unique request ID for support and debugging |
+| `X-Inferoute-Latency-Ms` | End-to-end request latency in milliseconds |
+
+## Examples
+
+### Basic request and response
+
+<CodeGroup>
+
+```bash curl
+curl https://api.tokenhub.ai/v1/chat/completions \
+  --request POST \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "model": "openai/gpt-4o",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is the capital of France?"}
+    ],
+    "max_tokens": 256,
+    "temperature": 0.7
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.tokenhub.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="openai/gpt-4o",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "What is the capital of France?"},
+    ],
+    max_tokens=256,
+    temperature=0.7,
+)
+print(response.choices[0].message.content)
+```
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion",
+  "model": "openai/gpt-4o",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "The capital of France is Paris."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 28,
+    "completion_tokens": 9,
+    "total_tokens": 37
+  }
+}
+```
+
+### Routing strategy and fallback
+
+```bash curl
+curl https://api.tokenhub.ai/v1/chat/completions \
+  --request POST \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --header "X-Inferoute-Strategy: latency" \
+  --header "X-Inferoute-Fallback: anthropic/claude-3-5-sonnet,openai/gpt-4-turbo" \
+  --data '{
+    "model": "openai/gpt-4o",
+    "messages": [{"role": "user", "content": "Summarize the Eiffel Tower in one sentence."}]
+  }'
+```
+
+### Streaming
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.tokenhub.ai/v1",
+)
+
+stream = client.chat.completions.create(
+    model="openai/gpt-4o",
+    messages=[{"role": "user", "content": "Write a short poem about the sea."}],
+    stream=True,
+)
+
+for chunk in stream:
+    delta = chunk.choices[0].delta
+    if delta.content:
+        print(delta.content, end="", flush=True)
+```
+
+Each streamed chunk looks like:
+
+```json
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion.chunk",
+  "model": "openai/gpt-4o",
+  "choices": [
+    {
+      "index": 0,
+      "delta": {
+        "content": "The"
+      },
+      "finish_reason": null
+    }
+  ]
+}
+```
+
+The stream terminates with `data: [DONE]`.

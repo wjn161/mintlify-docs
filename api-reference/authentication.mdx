@@ -1,0 +1,83 @@
+---
+title: "API Authentication Reference"
+sidebarTitle: "Authentication"
+description: "Authenticate with the Inferoute API using Bearer tokens. Every request requires an Authorization: Bearer header with a valid API key from your dashboard."
+---
+
+Inferoute authenticates every API request using Bearer token authentication. You include your API key in the `Authorization` header of each request — there are no cookies, sessions, or OAuth flows involved.
+
+## Header format
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+Replace `YOUR_API_KEY` with a key generated from your Inferoute dashboard. See [API keys](/configuration/api-keys) for instructions on creating and managing keys.
+
+## Code examples
+
+<CodeGroup>
+
+```bash curl
+curl https://api.inferoute.ai/v1/chat/completions \
+  --request POST \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "model": "openai/gpt-4o",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.inferoute.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="openai/gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+print(response.choices[0].message.content)
+```
+
+```javascript Node.js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "https://api.inferoute.ai/v1",
+});
+
+const response = await client.chat.completions.create({
+  model: "openai/gpt-4o",
+  messages: [{ role: "user", content: "Hello!" }],
+});
+console.log(response.choices[0].message.content);
+```
+
+</CodeGroup>
+
+## Authentication errors
+
+If your API key is missing, malformed, or invalid, the API returns a `401 Unauthorized` response with the following JSON body:
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "message": "Invalid API key provided. Check your key in the dashboard and ensure it is included as a Bearer token."
+  }
+}
+```
+
+<Warning>
+  Your API key grants full access to your Inferoute account. Never commit it to version control or expose it in client-side code. Use environment variables to inject keys at runtime.
+</Warning>
+
+## Managing API keys
+
+You can create, rotate, and revoke keys from the Inferoute dashboard under **Settings → API keys**. See [API keys](/configuration/api-keys) for a step-by-step walkthrough.

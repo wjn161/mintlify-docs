@@ -1,0 +1,172 @@
+---
+title: "Make Your First Request with TokenHub"
+sidebarTitle: "First Request"
+description: "Send your first chat completion request through TokenHub's unified API and understand the response fields, provider routing, and common errors."
+---
+
+TokenHub provides a unified OpenAI-compatible endpoint that routes your requests across LLM providers automatically. This guide walks you through sending your first chat completion request, reading the response, and handling common errors.
+
+## Prerequisites
+
+- A TokenHub API key (find it in the [dashboard](https://app.tokenhub.ai/keys))
+- One of: Python with the `openai` library, Node.js with the `openai` package, or `curl`
+
+## Send your first request
+
+<Steps>
+  <Step title="Install the client library">
+    Install the OpenAI SDK for your language. TokenHub is fully compatible with it — you only need to set the `base_url`.
+
+    <CodeGroup>
+
+    ```bash pip
+    pip install openai
+    ```
+
+    ```bash npm
+    npm install openai
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Configure the client">
+    Point the client at TokenHub's base URL and supply your API key.
+
+    <CodeGroup>
+
+    ```python python
+    from openai import OpenAI
+
+    client = OpenAI(
+        api_key="th-your-api-key",
+        base_url="https://api.tokenhub.ai/v1",
+    )
+    ```
+
+    ```javascript node.js
+    import OpenAI from "openai";
+
+    const client = new OpenAI({
+      apiKey: "th-your-api-key",
+      baseURL: "https://api.tokenhub.ai/v1",
+    });
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Send a chat completion">
+    Make a request using any model available through TokenHub. The `model` field accepts provider-prefixed names like `openai/gpt-4o`.
+
+    <CodeGroup>
+
+    ```python python
+    response = client.chat.completions.create(
+        model="openai/gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "What is the capital of France?"},
+        ],
+    )
+
+    print(response.choices[0].message.content)
+    ```
+
+    ```javascript node.js
+    const response = await client.chat.completions.create({
+      model: "openai/gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: "What is the capital of France?" },
+      ],
+    });
+
+    console.log(response.choices[0].message.content);
+    ```
+
+    ```bash curl
+    curl https://api.tokenhub.ai/v1/chat/completions \
+      -H "Authorization: Bearer th-your-api-key" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "openai/gpt-4o-mini",
+        "messages": [
+          {"role": "system", "content": "You are a helpful assistant."},
+          {"role": "user", "content": "What is the capital of France?"}
+        ]
+      }'
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Read the response">
+    A successful request returns a JSON object that mirrors the OpenAI chat completion format.
+
+    ```json response
+    {
+      "id": "chatcmpl-th-01j9z3xkbfqe5m7nw4v2p6r8c",
+      "object": "chat.completion",
+      "created": 1748131200,
+      "model": "openai/gpt-4o-mini-2024-07-18",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "The capital of France is Paris."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 26,
+        "completion_tokens": 9,
+        "total_tokens": 35
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+## Response fields explained
+
+| Field | Description |
+|---|---|
+| `id` | A unique identifier for this completion request, useful for support and debugging. |
+| `model` | The exact provider model that served the request. This may differ from what you requested if TokenHub applied routing or fallback. |
+| `choices` | An array of generated responses. Most requests return one choice unless you set `n > 1`. |
+| `choices[0].message.content` | The text of the assistant's reply. |
+| `choices[0].finish_reason` | Why the model stopped generating: `stop` (natural end), `length` (hit `max_tokens`), or `content_filter`. |
+| `usage` | Token counts for the request. You are billed based on these figures against the provider that served the request. |
+
+<Tip>
+  Every response from TokenHub includes an `X-Inferoute-Provider` response header that tells you which underlying provider handled the request (for example, `openai` or `anthropic`). You can log this header to track provider distribution across your application.
+</Tip>
+
+## Troubleshooting
+
+### 401 Unauthorized
+
+Your API key is missing, malformed, or revoked.
+
+- Confirm the key starts with `th-` and has no trailing whitespace.
+- Check the [API Keys](https://app.tokenhub.ai/keys) page to ensure the key is active.
+- Verify you are setting the `Authorization: Bearer <key>` header, not `X-API-Key`.
+
+### 429 Too Many Requests
+
+You have exceeded your rate limit or monthly usage cap.
+
+- Review your current limits on the [Usage](https://app.tokenhub.ai/usage) page.
+- Implement exponential backoff and retry logic in your application.
+- Contact support to request a limit increase if needed.
+
+### 500 Provider Error
+
+The upstream LLM provider returned an error or was unavailable.
+
+- TokenHub automatically retries with a backup provider when one is configured. See [Fallback Routing](/guides/fallback-routing) to set this up.
+- If the error persists, check the [TokenHub status page](https://status.tokenhub.ai) for active provider incidents.
+- The response body includes a `provider` field indicating which provider failed, which can help with debugging.

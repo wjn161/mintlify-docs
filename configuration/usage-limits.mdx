@@ -1,0 +1,62 @@
+---
+title: "Set Token and Spend Limits per API Key"
+sidebarTitle: "Usage Limits"
+description: "Cap monthly token consumption or USD spend per API key to control costs and allocate budgets across teams, features, or environments."
+---
+
+TokenHub lets you set hard usage limits on any API key so you can control costs before they grow. Limits are enforced at the key level, which means you can give each team, application, or feature its own budget without affecting the rest of your account.
+
+## Types of usage limits
+
+| Limit type                  | Description                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| Monthly token limit         | Maximum number of tokens (input + output) the key can consume in a calendar month.  |
+| Monthly spend limit (USD)   | Maximum dollar amount the key can incur in a calendar month.                         |
+| Per-request token limit     | Maximum `max_tokens` value allowed per individual request made with this key.        |
+
+When a key reaches its monthly limit, subsequent requests return `402 Payment Required`. If the limit is a rate-style cap rather than a spend cap, you may see `429` instead, with an error message that identifies the specific limit that was reached.
+
+## Setting a usage limit
+
+<Steps>
+  <Step title="Open API Keys settings">
+    In the TokenHub dashboard, navigate to **Settings → API Keys**.
+  </Step>
+  <Step title="Edit the key">
+    Find the key you want to limit and click **Edit**.
+  </Step>
+  <Step title="Open Usage Limits">
+    In the key editor, select the **Usage Limits** tab.
+  </Step>
+  <Step title="Enter your limits">
+    Set one or more of the following values:
+    - **Monthly token limit** — enter the maximum number of tokens allowed per month.
+    - **Monthly spend limit** — enter the maximum USD amount allowed per month.
+    - **Per-request token limit** — enter the maximum `max_tokens` permitted on a single request.
+
+    Leave a field blank to leave that dimension unlimited.
+  </Step>
+  <Step title="Save">
+    Click **Save changes**. Limits take effect immediately for all future requests using this key.
+  </Step>
+</Steps>
+
+<Tip>
+Start with conservative limits and increase them once you have a baseline of normal usage. It is much easier to raise a limit that is too low than to recover from an unexpected overage.
+</Tip>
+
+## Monitoring usage
+
+The dashboard shows real-time usage versus limits for every key on the **Settings → API Keys** page and in the dedicated **Usage** section. You can also configure email alerts to notify you when a key approaches its limit — for example, at 80% of the monthly spend cap.
+
+## Example: per-team budget isolation
+
+If your organization has separate teams consuming the API, you can issue each team a dedicated key with its own spend limit:
+
+| Key name        | Monthly spend limit |
+| --------------- | ------------------- |
+| `team-search`   | $200                |
+| `team-chat`     | $500                |
+| `team-internal` | $50                 |
+
+If `team-search` exhausts its $200 budget, its requests are blocked but every other key continues to work normally. This pattern prevents a single runaway workload from consuming your entire account balance.

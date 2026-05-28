@@ -1,0 +1,141 @@
+---
+title: "How TokenHub Intelligently Routes Your AI Requests"
+sidebarTitle: "Routing"
+description: "TokenHub's routing engine evaluates every request and selects the best provider based on your strategy — optimizing for cost, latency, or reliability."
+---
+
+TokenHub's routing engine sits at the core of every API call you make. Instead of sending requests to a single hardcoded provider, TokenHub evaluates your routing strategy and the current state of all connected providers, then forwards your request to the option that best matches your requirements. This happens transparently — your code stays the same regardless of which provider handles the work.
+
+## Routing strategies
+
+You can control how TokenHub selects a provider by specifying a routing strategy. Each strategy optimizes for a different dimension of performance.
+
+<Tabs>
+  <Tab title="Latency-optimized">
+    TokenHub routes to the provider with the lowest measured response time for the requested model at the moment of the call. This is the best choice for interactive applications where response speed is critical.
+
+    ```python
+    import openai
+
+    client = openai.OpenAI(
+        base_url="https://api.tokenhub.ai/v1",
+        api_key="YOUR_TOKENHUB_API_KEY",
+    )
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "Summarize this document."}],
+        extra_headers={"X-Inferoute-Strategy": "latency"},
+    )
+    ```
+  </Tab>
+  <Tab title="Cost-optimized">
+    TokenHub selects the provider offering the lowest combined prompt and completion token price for the requested model. Use this strategy for batch workloads, background jobs, or any task where a few extra milliseconds of latency is acceptable.
+
+    ```python
+    import openai
+
+    client = openai.OpenAI(
+        base_url="https://api.tokenhub.ai/v1",
+        api_key="YOUR_TOKENHUB_API_KEY",
+    )
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "Classify these 1000 support tickets."}],
+        extra_headers={"X-Inferoute-Strategy": "cost"},
+    )
+    ```
+  </Tab>
+  <Tab title="Availability">
+    TokenHub routes to the provider with the highest current uptime and lowest observed error rate. Use this when consistency matters more than raw speed or price.
+
+    ```python
+    import openai
+
+    client = openai.OpenAI(
+        base_url="https://api.tokenhub.ai/v1",
+        api_key="YOUR_TOKENHUB_API_KEY",
+    )
+
+    response = client.chat.completions.create(
+        model="claude-3-5-sonnet",
+        messages=[{"role": "user", "content": "Generate a contract draft."}],
+        extra_headers={"X-Inferoute-Strategy": "availability"},
+    )
+    ```
+  </Tab>
+  <Tab title="Round-robin">
+    TokenHub distributes requests evenly across all available providers for the requested model. This spreads load and provides a natural form of redundancy without prioritizing any single dimension.
+
+    ```python
+    import openai
+
+    client = openai.OpenAI(
+        base_url="https://api.tokenhub.ai/v1",
+        api_key="YOUR_TOKENHUB_API_KEY",
+    )
+
+    response = client.chat.completions.create(
+        model="gemini-1.5-pro",
+        messages=[{"role": "user", "content": "What is the capital of France?"}],
+        extra_headers={"X-Inferoute-Strategy": "round-robin"},
+    )
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  If you do not specify `X-Inferoute-Strategy`, TokenHub uses the **balanced** strategy by default. Balanced weighs latency, cost, and availability together to make a reasonable choice for most workloads.
+</Note>
+
+## Specifying routing preferences
+
+You have two ways to communicate your routing preference to TokenHub.
+
+### Via the model parameter
+
+You can embed the strategy directly in the model name using a routing suffix. This works with any OpenAI-compatible client without modifying headers.
+
+```javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  baseURL: "https://api.tokenhub.ai/v1",
+  apiKey: process.env.TOKENHUB_API_KEY,
+});
+
+// Route to the cheapest available GPT-4o endpoint
+const response = await client.chat.completions.create({
+  model: "gpt-4o:cost",
+  messages: [{ role: "user", content: "Draft a product description." }],
+});
+```
+
+Supported suffixes: `:latency`, `:cost`, `:availability`, `:round-robin`.
+
+### Via the X-Inferoute-Strategy header
+
+Pass the strategy as a custom request header. This keeps your model names clean and lets you change strategy at the request level without altering model identifiers.
+
+```bash
+curl https://api.tokenhub.ai/v1/chat/completions \
+  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "X-Inferoute-Strategy: latency" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+## Fallback behavior
+
+TokenHub automatically retries failed requests on alternative providers. If the primary provider returns an error or times out, TokenHub selects the next best option according to your strategy and retries the request — without any additional code on your side.
+
+Fallback behavior covers:
+- Provider-side 5xx errors
+- Request timeouts
+- Rate limit responses (429s) when no retry window is available
+
+The retry chain continues until a provider returns a successful response or all eligible providers for that model are exhausted. If all providers fail, TokenHub returns an error with details about each attempted provider.

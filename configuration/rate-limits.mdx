@@ -1,0 +1,105 @@
+---
+title: "Understanding TokenHub Rate Limits"
+sidebarTitle: "Rate Limits"
+description: "Learn how TokenHub enforces per-key rate limits, read limit headers in API responses, and handle 429 errors with exponential backoff."
+---
+
+TokenHub enforces rate limits on every API key to ensure fair usage across all customers and to protect system stability. Limits are measured in requests per minute (RPM) and tokens per minute (TPM). When you exceed a limit, the API returns a `429 Too Many Requests` response until the window resets.
+
+## Default limit tiers
+
+| Plan       | Requests per minute (RPM) | Tokens per minute (TPM) |
+| ---------- | ------------------------- | ----------------------- |
+| Free       | 60                        | 100,000                 |
+| Pro        | 600                       | 1,000,000               |
+| Enterprise | Custom                    | Custom                  |
+
+Contact [support@tokenhub.ai](mailto:support@tokenhub.ai) to request a limit increase for your plan.
+
+## Rate limit headers
+
+Every API response includes headers that tell you your current limit status:
+
+| Header                              | Description                                                    |
+| ----------------------------------- | -------------------------------------------------------------- |
+| `X-RateLimit-Limit-Requests`        | Maximum number of requests allowed in the current window.      |
+| `X-RateLimit-Remaining-Requests`    | Number of requests remaining before you hit the limit.         |
+| `X-RateLimit-Reset-Requests`        | Unix timestamp (seconds) when the request window resets.       |
+
+## Handling 429 errors
+
+When you exceed your rate limit, the API responds with:
+
+```
+HTTP/1.1 429 Too Many Requests
+Retry-After: 15
+```
+
+The `Retry-After` header tells you the number of seconds to wait before retrying. The safest strategy is **exponential backoff with jitter** — wait progressively longer between retries, with a small random component to avoid synchronized retry storms.
+
+<CodeGroup>
+
+```python python
+import time
+import random
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.tokenhub.ai/v1",
+    api_key="YOUR_TOKENHUB_API_KEY",
+)
+
+def chat_with_backoff(**kwargs):
+    max_retries = 5
+    base_delay = 1  # seconds
+
+    for attempt in range(max_retries):
+        try:
+            return client.chat.completions.create(**kwargs)
+        except openai.RateLimitError as e:
+            if attempt == max_retries - 1:
+                raise
+            delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+            print(f"Rate limit hit. Retrying in {delay:.2f}s...")
+            time.sleep(delay)
+
+response = chat_with_backoff(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+```
+
+```javascript node.js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  baseURL: "https://api.tokenhub.ai/v1",
+  apiKey: process.env.TOKENHUB_API_KEY,
+});
+
+async function chatWithBackoff(params, maxRetries = 5) {
+  let baseDelay = 1000; // milliseconds
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await client.chat.completions.create(params);
+    } catch (err) {
+      if (err.status !== 429 || attempt === maxRetries - 1) throw err;
+      const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
+      console.log(`Rate limit hit. Retrying in ${(delay / 1000).toFixed(2)}s...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
+const response = await chatWithBackoff({
+  model: "gpt-4o",
+  messages: [{ role: "user", content: "Hello!" }],
+});
+```
+
+</CodeGroup>
+
+<Note>
+TokenHub rate limits are separate from any limits enforced by the underlying providers. Even if you are within your TokenHub limits, a provider may throttle the request on their end. TokenHub will surface those errors with the same `429` status code and attempt automatic retries according to your routing configuration.
+</Note>

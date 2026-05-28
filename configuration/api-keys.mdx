@@ -1,0 +1,60 @@
+---
+title: "Manage TokenHub API Keys"
+sidebarTitle: "API Keys"
+description: "Create, rotate, and revoke TokenHub API keys from the dashboard. Set expiration dates, restrict keys to specific models, and isolate access by environment."
+---
+
+TokenHub uses API keys to authenticate every request you make to the platform. You can create multiple keys to isolate access by environment or team, set expiration dates, and revoke any key instantly from the dashboard.
+
+## Creating an API key
+
+Navigate to **Settings → API Keys** in the TokenHub dashboard and follow these steps:
+
+<Steps>
+  <Step title="Open the API Keys page">
+    In the dashboard, go to **Settings** in the left sidebar, then select **API Keys**.
+  </Step>
+  <Step title="Click New API Key">
+    Select **New API Key** in the top-right corner of the page.
+  </Step>
+  <Step title="Name your key">
+    Enter a descriptive name that identifies the key's purpose, such as `production`, `dev`, or `staging-team-a`.
+  </Step>
+  <Step title="Set an expiration date (optional)">
+    Choose an expiration date if you want the key to automatically expire. Leave blank for a key that does not expire.
+  </Step>
+  <Step title="Restrict to specific models or providers (optional)">
+    Under **Model Restrictions**, select the models or providers this key is allowed to call. Leave unrestricted to allow all models.
+  </Step>
+  <Step title="Copy your key immediately">
+    After clicking **Create**, the full key is displayed exactly once. Copy it now and store it securely — TokenHub does not show the key value again after you close this dialog.
+  </Step>
+</Steps>
+
+<Warning>
+Never share your API key or commit it to source control. If a key is accidentally exposed, revoke it immediately from the dashboard and create a new one.
+</Warning>
+
+## Managing existing keys
+
+From **Settings → API Keys** you can:
+
+- **List** all keys associated with your account, along with their name, creation date, expiration, and last-used timestamp.
+- **Rotate** a key by creating a new key with the same restrictions, updating your application to use the new key, then revoking the old one.
+- **Revoke** any key by clicking **Revoke** next to it. Revocation takes effect immediately — any subsequent request using that key returns `401 Unauthorized`.
+
+## Best practices
+
+- **One key per environment.** Use separate keys for development, staging, and production so that a leaked dev key cannot affect production traffic.
+- **Store keys in environment variables.** Set the key as `TOKENHUB_API_KEY` in your environment rather than hardcoding it in source code.
+
+```bash
+export TOKENHUB_API_KEY="th-..."
+```
+
+- **Rotate keys regularly.** Establish a rotation schedule (for example, every 90 days) to limit the blast radius of any undetected exposure.
+- **Set expiration dates** on keys used for short-lived purposes such as CI pipelines or one-off scripts.
+
+## Revoking a key
+
+To revoke a key, go to **Settings → API Keys**, find the key you want to remove, and click **Revoke**. The key is invalidated instantly. Any application still using the revoked key will receive a `401 Unauthorized` response on its next request.

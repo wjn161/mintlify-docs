@@ -1,0 +1,194 @@
+---
+title: "POST /v1/embeddings"
+sidebarTitle: "Embeddings"
+description: "Generate vector embeddings for text input. Accepts input text and model, returns embedding vectors for semantic search, RAG pipelines, and similarity tasks."
+---
+
+The embeddings endpoint converts text into high-dimensional numeric vectors that capture semantic meaning. You can use these vectors to build retrieval-augmented generation (RAG) pipelines, power semantic search, cluster documents by topic, or classify text without fine-tuning.
+
+## Endpoint
+
+```
+POST https://api.tokenhub.ai/v1/embeddings
+```
+
+## Request parameters
+
+<ParamField body="model" type="string" required>
+  The embedding model to use. For example: `text-embedding-3-small` or `text-embedding-3-large`. Retrieve the full list of available embedding models from [GET /v1/models](/api-reference/models).
+</ParamField>
+
+<ParamField body="input" type="string | string[]" required>
+  The text to embed. Pass a single string for one embedding or an array of strings to embed multiple inputs in a single request. Arrays are more efficient than making one request per string.
+</ParamField>
+
+<ParamField body="encoding_format" type="string" default="float">
+  Format for the returned vectors. Use `"float"` for a JSON array of numbers (default), or `"base64"` for a base64-encoded binary representation that reduces response size.
+</ParamField>
+
+<ParamField body="dimensions" type="integer">
+  Number of dimensions in the output embedding. Only supported by models that accept a dimensions parameter (e.g., `text-embedding-3-small`, `text-embedding-3-large`). Reducing dimensions trades some accuracy for lower storage and compute cost.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="object" type="string">
+  Always `"list"`.
+</ResponseField>
+
+<ResponseField name="data" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="index" type="integer">
+      Zero-based index corresponding to the input at that position.
+    </ResponseField>
+    <ResponseField name="object" type="string">
+      Always `"embedding"`.
+    </ResponseField>
+    <ResponseField name="embedding" type="number[]">
+      The embedding vector as an array of floating-point numbers. The length equals the model's output dimension (or the value of `dimensions` if specified).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  The model that generated the embeddings.
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  <Expandable title="properties">
+    <ResponseField name="prompt_tokens" type="integer">
+      Total tokens across all inputs.
+    </ResponseField>
+    <ResponseField name="total_tokens" type="integer">
+      Same as `prompt_tokens` for embedding requests (no completion tokens are generated).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+### Single string input
+
+<CodeGroup>
+
+```bash curl
+curl https://api.tokenhub.ai/v1/embeddings \
+  --request POST \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "model": "text-embedding-3-small",
+    "input": "TokenHub routes your LLM requests intelligently."
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.tokenhub.ai/v1",
+)
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input="TokenHub routes your LLM requests intelligently.",
+)
+vector = response.data[0].embedding
+print(f"Embedding dimension: {len(vector)}")
+```
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "index": 0,
+      "object": "embedding",
+      "embedding": [0.0023064255, -0.009327292, 0.015797043, "..."]
+    }
+  ],
+  "model": "text-embedding-3-small",
+  "usage": {
+    "prompt_tokens": 9,
+    "total_tokens": 9
+  }
+}
+```
+
+### Array input (batch embedding)
+
+<CodeGroup>
+
+```bash curl
+curl https://api.tokenhub.ai/v1/embeddings \
+  --request POST \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "model": "text-embedding-3-small",
+    "input": [
+      "How do I reset my password?",
+      "Where can I find my invoice?",
+      "How do I upgrade my plan?"
+    ]
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.tokenhub.ai/v1",
+)
+
+texts = [
+    "How do I reset my password?",
+    "Where can I find my invoice?",
+    "How do I upgrade my plan?",
+]
+
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input=texts,
+)
+
+for item in response.data:
+    print(f"Index {item.index}: {len(item.embedding)} dimensions")
+```
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "object": "list",
+  "data": [
+    {"index": 0, "object": "embedding", "embedding": [0.0023, -0.0093, "..."]},
+    {"index": 1, "object": "embedding", "embedding": [-0.0041, 0.0187, "..."]},
+    {"index": 2, "object": "embedding", "embedding": [0.0112, -0.0034, "..."]}
+  ],
+  "model": "text-embedding-3-small",
+  "usage": {
+    "prompt_tokens": 27,
+    "total_tokens": 27
+  }
+}
+```
+
+## Common use cases
+
+- **RAG pipelines** — embed your documents at index time, embed user queries at runtime, and retrieve the closest chunks by cosine similarity before passing them to a chat completions request.
+- **Semantic search** — find documents that are conceptually similar to a query even when no keywords match.
+- **Document clustering** — group large collections of text by topic without labeled training data.
+- **Classification** — train a lightweight classifier on top of embeddings rather than fine-tuning a full model.
+
+<Tip>
+Batch your inputs into a single request whenever possible. Sending 100 strings in one array call is significantly faster and cheaper than making 100 individual requests.
+</Tip>

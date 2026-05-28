@@ -1,0 +1,104 @@
+---
+title: "TokenHub REST API Reference"
+sidebarTitle: "Overview"
+description: "Complete reference for the TokenHub REST API. Route LLM requests across providers using an OpenAI-compatible interface at https://api.tokenhub.ai/v1."
+---
+
+TokenHub exposes an OpenAI-compatible REST API that lets you send inference requests to multiple LLM providers through a single unified endpoint. Every request goes to `https://api.tokenhub.ai/v1`, accepts JSON, and returns JSON — so any tooling that works with the OpenAI API works with TokenHub as well.
+
+## Base URL
+
+```bash
+https://api.tokenhub.ai/v1
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header:
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+See [Authentication](/api-reference/authentication) for full details and code examples.
+
+## Available endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/v1/chat/completions` | Generate chat responses from a messages array |
+| `POST` | `/v1/completions` | Generate text completions from a prompt string |
+| `POST` | `/v1/embeddings` | Generate vector embeddings for text input |
+| `GET` | `/v1/models` | List all available models and their capabilities |
+
+<CardGroup cols={2}>
+  <Card title="Chat completions" icon="message" href="/api-reference/chat-completions">
+    Send a messages array and receive an assistant reply. Supports streaming, function calling, and all OpenAI-compatible parameters.
+  </Card>
+  <Card title="Completions" icon="text" href="/api-reference/completions">
+    Legacy text completion endpoint. Accepts a prompt string and returns generated text.
+  </Card>
+  <Card title="Embeddings" icon="vector-square" href="/api-reference/embeddings">
+    Generate vector representations of text for semantic search, RAG pipelines, and classification.
+  </Card>
+  <Card title="Models" icon="list" href="/api-reference/models">
+    Retrieve the full list of models available on TokenHub, including provider, context window, and capabilities.
+  </Card>
+</CardGroup>
+
+## OpenAI SDK compatibility
+
+Because TokenHub implements the OpenAI API spec, you can use any OpenAI SDK by pointing `base_url` at TokenHub:
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_TOKENHUB_API_KEY",
+    base_url="https://api.tokenhub.ai/v1",
+)
+
+response = client.chat.completions.create(
+    model="openai/gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+print(response.choices[0].message.content)
+```
+
+```javascript Node.js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_TOKENHUB_API_KEY",
+  baseURL: "https://api.tokenhub.ai/v1",
+});
+
+const response = await client.chat.completions.create({
+  model: "openai/gpt-4o",
+  messages: [{ role: "user", content: "Hello!" }],
+});
+console.log(response.choices[0].message.content);
+```
+
+</CodeGroup>
+
+## TokenHub-specific headers
+
+TokenHub extends the OpenAI request/response contract with a small set of headers for routing control and observability.
+
+### Request headers
+
+| Header | Values | Description |
+|--------|--------|-------------|
+| `X-Inferoute-Strategy` | `cost`, `latency`, `availability`, `round-robin` | Routing strategy for this request |
+| `X-Inferoute-Fallback` | Comma-separated model IDs | Ordered list of fallback models if the primary is unavailable |
+
+### Response headers
+
+| Header | Description |
+|--------|-------------|
+| `X-Inferoute-Provider` | The provider that served the request (e.g., `openai`, `anthropic`) |
+| `X-Inferoute-Request-Id` | Unique request identifier for debugging and support |
+| `X-Inferoute-Latency-Ms` | End-to-end request latency in milliseconds |

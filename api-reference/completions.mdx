@@ -1,0 +1,151 @@
+---
+title: "POST /v1/completions"
+sidebarTitle: "Completions"
+description: "Generate text completions from a prompt string. Accepts prompt and model, returns generated text. Legacy endpoint; prefer chat completions for most use cases."
+---
+
+The completions endpoint is a legacy text generation interface that accepts a plain prompt string and returns generated text. It is fully compatible with the OpenAI Completions API and is available for workloads that depend on the older prompt-in/text-out contract.
+
+<Note>
+For most new applications, prefer the [Chat Completions](/api-reference/chat-completions) endpoint. It supports more capable models, structured conversations, and function calling. The completions endpoint exists primarily for backward compatibility.
+</Note>
+
+## Endpoint
+
+```
+POST https://api.tokenhub.ai/v1/completions
+```
+
+## Request parameters
+
+<ParamField body="model" type="string" required>
+  The model to use. Use the provider-prefixed format (`openai/gpt-3.5-turbo-instruct`) or the short name where unambiguous. Retrieve available model IDs from [GET /v1/models](/api-reference/models).
+</ParamField>
+
+<ParamField body="prompt" type="string | string[]" required>
+  The prompt text to complete. Pass a string for a single prompt or an array of strings to generate completions for multiple prompts in one request.
+</ParamField>
+
+<ParamField body="max_tokens" type="integer" default="16">
+  Maximum number of tokens to generate per completion.
+</ParamField>
+
+<ParamField body="temperature" type="number" default="1">
+  Sampling temperature between `0` and `2`. Lower values are more deterministic; higher values are more creative.
+</ParamField>
+
+<ParamField body="stream" type="boolean" default="false">
+  Stream the response as server-sent events. Each event contains a partial completion delta. The stream ends with `data: [DONE]`.
+</ParamField>
+
+<ParamField body="stop" type="string | string[]">
+  One or more stop sequences. Generation stops when any sequence is encountered; the stop sequence itself is not included in the output.
+</ParamField>
+
+<ParamField body="best_of" type="integer" default="1">
+  Generate this many completions server-side and return the best one (as measured by log probability). Higher values increase latency and token usage.
+</ParamField>
+
+<ParamField body="logprobs" type="integer">
+  Include log probabilities for the top `logprobs` tokens at each position. Maximum value is `5`.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="id" type="string">
+  Unique identifier for this completion request.
+</ResponseField>
+
+<ResponseField name="object" type="string">
+  Always `"text_completion"`.
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  The model that served the request.
+</ResponseField>
+
+<ResponseField name="choices" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="index" type="integer">
+      Zero-based index of this choice.
+    </ResponseField>
+    <ResponseField name="text" type="string">
+      The generated text.
+    </ResponseField>
+    <ResponseField name="finish_reason" type="string">
+      Why generation stopped: `"stop"`, `"length"`, or `"content_filter"`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  <Expandable title="properties">
+    <ResponseField name="prompt_tokens" type="integer">
+      Number of tokens in the prompt.
+    </ResponseField>
+    <ResponseField name="completion_tokens" type="integer">
+      Number of tokens generated.
+    </ResponseField>
+    <ResponseField name="total_tokens" type="integer">
+      Sum of prompt and completion tokens.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+
+```bash curl
+curl https://api.tokenhub.ai/v1/completions \
+  --request POST \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "model": "openai/gpt-3.5-turbo-instruct",
+    "prompt": "The tallest mountain in the world is",
+    "max_tokens": 64,
+    "temperature": 0.5
+  }'
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.tokenhub.ai/v1",
+)
+
+response = client.completions.create(
+    model="openai/gpt-3.5-turbo-instruct",
+    prompt="The tallest mountain in the world is",
+    max_tokens=64,
+    temperature=0.5,
+)
+print(response.choices[0].text)
+```
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "id": "cmpl-xyz789",
+  "object": "text_completion",
+  "model": "openai/gpt-3.5-turbo-instruct",
+  "choices": [
+    {
+      "index": 0,
+      "text": " Mount Everest, standing at 8,848 metres (29,029 ft) above sea level.",
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 10,
+    "completion_tokens": 18,
+    "total_tokens": 28
+  }
+}
+```

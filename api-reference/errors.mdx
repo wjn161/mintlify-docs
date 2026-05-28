@@ -1,0 +1,94 @@
+---
+title: "API Error Codes and Responses"
+sidebarTitle: "Errors"
+description: "TokenHub returns standard HTTP status codes with JSON error bodies. Learn which codes to expect, what they mean, and how to handle retries in your application."
+---
+
+TokenHub uses standard HTTP status codes to indicate the outcome of every request. Errors always return a JSON body so your application can parse the failure reason programmatically and react accordingly.
+
+## Error response format
+
+All error responses share this structure:
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "message": "Invalid API key provided.",
+    "code": "invalid_api_key"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `type` | string | Broad error category |
+| `message` | string | Human-readable description of the error |
+| `code` | string | Machine-readable error code for programmatic handling |
+
+## Error codes
+
+| Status | Type | When it occurs |
+|--------|------|----------------|
+| `400 Bad Request` | `invalid_request_error` | Malformed JSON body or missing required fields |
+| `401 Unauthorized` | `authentication_error` | Missing or invalid API key |
+| `402 Payment Required` | `usage_limit_exceeded` | Monthly usage limit has been reached |
+| `404 Not Found` | `not_found_error` | Model not found or endpoint path is invalid |
+| `422 Unprocessable Entity` | `invalid_request_error` | Valid JSON but parameter values fail validation (e.g., `temperature` out of range) |
+| `429 Too Many Requests` | `rate_limit_error` | Request rate limit exceeded |
+| `500 Internal Server Error` | `api_error` | Internal TokenHub error or unexpected provider failure |
+| `503 Service Unavailable` | `provider_error` | All configured providers (including fallbacks) are unavailable |
+
+## Retry logic
+
+Not all errors are worth retrying. Use this guidance to decide:
+
+**Retry these errors** — they are transient and typically resolve automatically:
+
+- `429 Too Many Requests` — back off and retry after the interval in the `Retry-After` header
+- `500 Internal Server Error` — retry with exponential backoff
+- `503 Service Unavailable` — retry with exponential backoff; consider adding fallback models via `X-Inferoute-Fallback`
+
+**Do not retry these errors** — they indicate a problem with the request itself:
+
+- `400 Bad Request` — fix the request body before retrying
+- `401 Unauthorized` — provide a valid API key
+- `402 Payment Required` — upgrade your plan or wait for the billing period to reset
+- `404 Not Found` — check the model ID and endpoint path
+- `422 Unprocessable Entity` — correct the invalid parameter values
+
+## Exponential backoff example
+
+```python
+import time
+import random
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.tokenhub.ai/v1",
+)
+
+RETRYABLE_STATUS_CODES = {429, 500, 503}
+MAX_RETRIES = 5
+
+def chat_with_backoff(messages, model="openai/gpt-4o"):
+    delay = 1.0
+    for attempt in range(MAX_RETRIES):
+        try:
+            return client.chat.completions.create(
+                model=model,
+                messages=messages,
+            )
+        except Exception as e:
+            status = getattr(e, "status_code", None)
+            if status not in RETRYABLE_STATUS_CODES or attempt == MAX_RETRIES - 1:
+                raise
+            jitter = random.uniform(0, delay * 0.1)
+            print(f"Attempt {attempt + 1} failed with {status}. Retrying in {delay:.1f}s...")
+            time.sleep(delay + jitter)
+            delay = min(delay * 2, 60)  # cap at 60 seconds
+
+response = chat_with_backoff([{"role": "user", "content": "Hello!"}])
+print(response.choices[0].message.content)
+```

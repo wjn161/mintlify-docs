@@ -1,0 +1,98 @@
+{
+  "projectType": "saas",
+  "projectName": "TokenHub",
+  "projectDescription": "TokenHub (Inferoute) is an AI inference routing platform that provides a unified API gateway to intelligently route requests across multiple LLM providers, optimizing for cost, latency, and availability.",
+  "theme": "luma",
+  "primaryColor": "#235ad6",
+  "lightColor": "#689eea",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/routing",
+              "concepts/providers",
+              "concepts/models",
+              "concepts/tokens"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/first-request",
+              "guides/model-selection",
+              "guides/fallback-routing",
+              "guides/cost-optimization"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/api-keys",
+              "configuration/rate-limits",
+              "configuration/usage-limits"
+            ]
+          },
+          {
+            "group": "Support",
+            "pages": [
+              "faq",
+              "troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/errors"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/chat-completions",
+              "api-reference/completions",
+              "api-reference/embeddings",
+              "api-reference/models"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Unified API gateway compatible with OpenAI API spec",
+    "Intelligent routing across multiple LLM providers",
+    "Automatic fallback and failover between providers",
+    "Cost optimization and token usage tracking",
+    "Support for major providers (OpenAI, Anthropic, Google, Mistral, etc.)",
+    "Rate limiting and usage controls",
+    "Real-time latency and availability routing"
+  ],
+  "publicApiSurface": [
+    "POST /v1/chat/completions",
+    "POST /v1/completions",
+    "POST /v1/embeddings",
+    "GET /v1/models",
+    "API key authentication via Bearer token",
+    "OpenAI-compatible request/response format"
+  ]
+}

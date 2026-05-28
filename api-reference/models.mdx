@@ -1,0 +1,171 @@
+---
+title: "GET /v1/models"
+sidebarTitle: "Models"
+description: "List all available models on TokenHub. Returns model IDs, provider, context window, and capabilities. Use model IDs in your chat and completion requests."
+---
+
+The models endpoint returns every model currently available on TokenHub, along with metadata about each one. Use the `id` field from this response when specifying the `model` parameter in your chat, completion, and embedding requests.
+
+## Endpoint
+
+```
+GET https://api.tokenhub.ai/v1/models
+```
+
+No request body is required. Include your `Authorization` header as with all TokenHub requests.
+
+## Response fields
+
+<ResponseField name="object" type="string">
+  Always `"list"`.
+</ResponseField>
+
+<ResponseField name="data" type="object[]">
+  Array of model objects, one per available model.
+
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      The model identifier to use in API requests. Typically in `provider/model-name` format, e.g. `openai/gpt-4o` or `anthropic/claude-3-5-sonnet`.
+    </ResponseField>
+    <ResponseField name="object" type="string">
+      Always `"model"`.
+    </ResponseField>
+    <ResponseField name="owned_by" type="string">
+      The provider that owns this model, e.g. `openai`, `anthropic`, `google`, `meta`.
+    </ResponseField>
+    <ResponseField name="context_window" type="integer">
+      Maximum number of tokens the model can process in a single request (prompt + completion combined).
+    </ResponseField>
+    <ResponseField name="capabilities" type="object">
+      <Expandable title="properties">
+        <ResponseField name="chat" type="boolean">
+          Whether this model can be used with the `/v1/chat/completions` endpoint.
+        </ResponseField>
+        <ResponseField name="completions" type="boolean">
+          Whether this model can be used with the `/v1/completions` endpoint.
+        </ResponseField>
+        <ResponseField name="embeddings" type="boolean">
+          Whether this model can be used with the `/v1/embeddings` endpoint.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+
+```bash curl
+curl https://api.tokenhub.ai/v1/models \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.tokenhub.ai/v1",
+)
+
+models = client.models.list()
+for model in models.data:
+    print(model.id)
+```
+
+```javascript Node.js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "https://api.tokenhub.ai/v1",
+});
+
+const models = await client.models.list();
+for (const model of models.data) {
+  console.log(model.id);
+}
+```
+
+</CodeGroup>
+
+**Response:**
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "openai/gpt-4o",
+      "object": "model",
+      "owned_by": "openai",
+      "context_window": 128000,
+      "capabilities": {
+        "chat": true,
+        "completions": false,
+        "embeddings": false
+      }
+    },
+    {
+      "id": "anthropic/claude-3-5-sonnet",
+      "object": "model",
+      "owned_by": "anthropic",
+      "context_window": 200000,
+      "capabilities": {
+        "chat": true,
+        "completions": false,
+        "embeddings": false
+      }
+    },
+    {
+      "id": "openai/gpt-3.5-turbo-instruct",
+      "object": "model",
+      "owned_by": "openai",
+      "context_window": 4096,
+      "capabilities": {
+        "chat": false,
+        "completions": true,
+        "embeddings": false
+      }
+    },
+    {
+      "id": "text-embedding-3-small",
+      "object": "model",
+      "owned_by": "openai",
+      "context_window": 8191,
+      "capabilities": {
+        "chat": false,
+        "completions": false,
+        "embeddings": true
+      }
+    },
+    {
+      "id": "text-embedding-3-large",
+      "object": "model",
+      "owned_by": "openai",
+      "context_window": 8191,
+      "capabilities": {
+        "chat": false,
+        "completions": false,
+        "embeddings": true
+      }
+    },
+    {
+      "id": "google/gemini-1.5-pro",
+      "object": "model",
+      "owned_by": "google",
+      "context_window": 2097152,
+      "capabilities": {
+        "chat": true,
+        "completions": false,
+        "embeddings": false
+      }
+    }
+  ]
+}
+```
+
+<Tip>
+Filter the `data` array by `capabilities.embeddings === true` to get only models that work with the `/v1/embeddings` endpoint, or by `capabilities.chat === true` for chat-capable models. This avoids trial-and-error when selecting a model for a specific endpoint.
+</Tip>

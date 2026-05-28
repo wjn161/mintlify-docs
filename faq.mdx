@@ -1,0 +1,107 @@
+---
+title: "TokenHub Frequently Asked Questions"
+sidebarTitle: "FAQ"
+description: "Answers to common questions about TokenHub: SDK compatibility, supported providers, billing, data handling, latency overhead, streaming, and how routing works."
+---
+
+This page answers the most common questions about TokenHub. If you cannot find what you are looking for here, reach out via the dashboard chat or email [support@tokenhub.ai](mailto:support@tokenhub.ai).
+
+<AccordionGroup>
+
+  <Accordion title="Is TokenHub compatible with the OpenAI SDK?">
+    Yes. TokenHub exposes an OpenAI-compatible API, so you can use the official OpenAI SDK by pointing it at the TokenHub base URL and supplying your TokenHub API key:
+
+    ```python python
+    import openai
+
+    client = openai.OpenAI(
+        base_url="https://api.tokenhub.ai/v1",
+        api_key="YOUR_TOKENHUB_API_KEY",
+    )
+    ```
+
+    ```javascript node.js
+    import OpenAI from "openai";
+
+    const client = new OpenAI({
+      baseURL: "https://api.tokenhub.ai/v1",
+      apiKey: process.env.TOKENHUB_API_KEY,
+    });
+    ```
+
+    No other code changes are required.
+  </Accordion>
+
+  <Accordion title="Which providers does TokenHub support?">
+    TokenHub currently routes requests across the following providers:
+
+    - **OpenAI** — GPT-4o, GPT-4o mini, o1, o3, and more
+    - **Anthropic** — Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku, and more
+    - **Google** — Gemini 1.5 Pro, Gemini 1.5 Flash, and more
+    - **Mistral** — Mistral Large, Mistral Small, Codestral, and more
+    - **Meta / Llama** — Llama 3.3, Llama 3.1, and more
+
+    Call `GET /v1/models` to retrieve the current list of available models.
+  </Accordion>
+
+  <Accordion title="Do I need accounts with each provider?">
+    No. TokenHub handles provider relationships on your behalf. You only need a TokenHub account and a TokenHub API key. You do not need to create accounts with OpenAI, Anthropic, Google, or any other provider, and you do not need to manage separate provider API keys.
+  </Accordion>
+
+  <Accordion title="How is billing calculated?">
+    Your bill is based on two components:
+
+    1. **Provider token costs** — the cost of the tokens consumed at the provider level, passed through at the provider's published rates.
+    2. **TokenHub routing fee** — a small per-request fee that covers routing infrastructure, fallback logic, and platform features.
+
+    Both components are aggregated and billed monthly. You can view a breakdown by key, model, and provider in the **Usage** section of the dashboard.
+  </Accordion>
+
+  <Accordion title="What happens if a provider goes down?">
+    TokenHub monitors provider availability continuously. If a provider becomes unavailable or returns errors above a threshold, TokenHub automatically routes your request to a backup provider that serves an equivalent model. This fallback happens transparently — your application receives a successful response without any code changes. You can configure fallback behavior and preferred backup providers in the **Routing** section of the dashboard.
+  </Accordion>
+
+  <Accordion title="Can I use a specific provider exclusively?">
+    Yes. Use provider-prefixed model names in your request to pin traffic to a specific provider. For example:
+
+    ```python python
+    response = client.chat.completions.create(
+        model="openai/gpt-4o",  # always use OpenAI, never fall back
+        messages=[{"role": "user", "content": "Hello!"}],
+    )
+    ```
+
+    Supported prefixes include `openai/`, `anthropic/`, `google/`, `mistral/`, and `meta/`. When you use a prefixed model name, TokenHub does not attempt automatic fallback to another provider.
+  </Accordion>
+
+  <Accordion title="Is my data stored by TokenHub?">
+    By default, TokenHub does not store the content of your requests or responses. Requests are routed to the selected provider and the response is forwarded back to you. TokenHub retains metadata (such as token counts, latency, and provider used) for billing and analytics purposes. If you need data residency guarantees or a custom retention policy, contact [support@tokenhub.ai](mailto:support@tokenhub.ai) to discuss Enterprise options.
+  </Accordion>
+
+  <Accordion title="What is the latency overhead of routing?">
+    The routing layer typically adds less than 10 milliseconds to end-to-end latency. The dominant factor in response time is the provider's own inference time, not the TokenHub routing step. If you need to minimize latency further, enable the **latency-optimized** routing strategy in the dashboard, which selects the provider with the lowest observed response time for each request.
+  </Accordion>
+
+  <Accordion title="Can I use streaming responses?">
+    Yes. Set `stream: true` in your request exactly as you would with the OpenAI API. TokenHub transparently streams the provider's response back to your client.
+
+    ```python python
+    stream = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "Tell me a story."}],
+        stream=True,
+    )
+
+    for chunk in stream:
+        print(chunk.choices[0].delta.content or "", end="", flush=True)
+    ```
+  </Accordion>
+
+  <Accordion title="How do I get support?">
+    You can reach the TokenHub support team through two channels:
+
+    - **Dashboard chat** — click the chat icon in the bottom-right corner of any dashboard page for real-time help.
+    - **Email** — send a message to [support@tokenhub.ai](mailto:support@tokenhub.ai). Include the `X-Inferoute-Request-Id` header value from any failing request to help the team diagnose the issue faster.
+  </Accordion>
+
+</AccordionGroup>

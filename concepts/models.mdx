@@ -1,0 +1,159 @@
+---
+title: "How to Select and Use Models Across Providers in TokenHub"
+sidebarTitle: "Models"
+description: "Specify models by provider-prefixed name, short alias, or use 'auto' to let TokenHub select the best available model for your request."
+---
+
+TokenHub uses the same `model` parameter you already know from the OpenAI API. You pass a model name in your request, and TokenHub resolves it to the appropriate provider and model version. You can be as specific as you want — pinning a request to a particular provider and model — or as general as you want, delegating the selection to TokenHub entirely.
+
+<Tip>
+  Use short aliases like `gpt-4o` and `claude-3-5-sonnet` instead of provider-prefixed names like `openai/gpt-4o`. Aliases keep your code provider-agnostic, making it easy to swap providers without modifying requests.
+</Tip>
+
+## Model naming formats
+
+TokenHub supports three model naming formats.
+
+### Provider-prefixed names
+
+Fully qualified names that pin a request to a specific provider. Use this format when you need to guarantee which provider handles the request.
+
+```
+openai/gpt-4o
+anthropic/claude-3-5-sonnet
+google/gemini-1.5-pro
+mistral/mistral-large
+meta/llama-3.1-70b
+```
+
+### Short aliases
+
+Shorthand names that map to a canonical model across providers. TokenHub resolves the alias to the best available endpoint for that model.
+
+| Alias | Resolves to |
+|-------|-------------|
+| `gpt-4o` | OpenAI GPT-4o |
+| `gpt-4` | OpenAI GPT-4 |
+| `gpt-3.5-turbo` | OpenAI GPT-3.5 Turbo |
+| `claude-3-5-sonnet` | Anthropic Claude 3.5 Sonnet |
+| `claude-3-opus` | Anthropic Claude 3 Opus |
+| `claude-3-haiku` | Anthropic Claude 3 Haiku |
+| `gemini-1.5-pro` | Google Gemini 1.5 Pro |
+| `gemini-1.5-flash` | Google Gemini 1.5 Flash |
+| `mistral-large` | Mistral Large |
+
+### Auto selection
+
+Setting `model` to `"auto"` tells TokenHub to pick the most suitable model for your request based on its content, your active routing strategy, and current provider availability.
+
+```python
+response = client.chat.completions.create(
+    model="auto",
+    messages=[{"role": "user", "content": "Write a Python function to parse CSV files."}],
+)
+```
+
+## Code examples
+
+The following examples show how to use each naming format in a standard chat completion call.
+
+<CodeGroup>
+
+```python python
+import openai
+
+client = openai.OpenAI(
+    base_url="https://api.tokenhub.ai/v1",
+    api_key="YOUR_TOKENHUB_API_KEY",
+)
+
+# Provider-prefixed: always uses Anthropic
+response = client.chat.completions.create(
+    model="anthropic/claude-3-5-sonnet",
+    messages=[{"role": "user", "content": "What is the boiling point of water?"}],
+)
+
+# Short alias: provider-agnostic
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "What is the boiling point of water?"}],
+)
+
+# Auto: TokenHub decides
+response = client.chat.completions.create(
+    model="auto",
+    messages=[{"role": "user", "content": "What is the boiling point of water?"}],
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript javascript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  baseURL: "https://api.tokenhub.ai/v1",
+  apiKey: process.env.TOKENHUB_API_KEY,
+});
+
+// Provider-prefixed: always uses Google
+const response = await client.chat.completions.create({
+  model: "google/gemini-1.5-pro",
+  messages: [{ role: "user", content: "What is the boiling point of water?" }],
+});
+
+// Short alias: provider-agnostic
+const response2 = await client.chat.completions.create({
+  model: "gemini-1.5-pro",
+  messages: [{ role: "user", content: "What is the boiling point of water?" }],
+});
+
+// Auto: TokenHub decides
+const response3 = await client.chat.completions.create({
+  model: "auto",
+  messages: [{ role: "user", content: "What is the boiling point of water?" }],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash bash
+# Provider-prefixed
+curl https://api.tokenhub.ai/v1/chat/completions \
+  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "mistral/mistral-large", "messages": [{"role": "user", "content": "Hello"}]}'
+
+# Short alias
+curl https://api.tokenhub.ai/v1/chat/completions \
+  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "mistral-large", "messages": [{"role": "user", "content": "Hello"}]}'
+
+# Auto
+curl https://api.tokenhub.ai/v1/chat/completions \
+  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "auto", "messages": [{"role": "user", "content": "Hello"}]}'
+```
+
+</CodeGroup>
+
+## Model capabilities
+
+Different models support different features. The table below summarizes key capabilities for the models available on TokenHub.
+
+| Model | Context window | Multimodal input | Max output tokens |
+|-------|---------------|-----------------|-------------------|
+| GPT-4o | 128K tokens | Images, audio | 16K tokens |
+| GPT-4 | 128K tokens | Images | 8K tokens |
+| GPT-3.5 Turbo | 16K tokens | — | 4K tokens |
+| Claude 3.5 Sonnet | 200K tokens | Images, documents | 8K tokens |
+| Claude 3 Opus | 200K tokens | Images, documents | 4K tokens |
+| Claude 3 Haiku | 200K tokens | Images | 4K tokens |
+| Gemini 1.5 Pro | 1M tokens | Images, video, audio | 8K tokens |
+| Gemini 1.5 Flash | 1M tokens | Images, video, audio | 8K tokens |
+| Mistral Large | 128K tokens | — | 4K tokens |
+| Llama 3.1 70B | 128K tokens | — | 4K tokens |
+
+To list all currently available models and their capabilities programmatically, use the [`GET /v1/models`](/api-reference/models) endpoint.
