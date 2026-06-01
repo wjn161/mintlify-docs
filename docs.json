@@ -6,11 +6,6 @@
     "primary": "#235ad6",
     "light": "#689eea"
   },
-  "logo": {
-    "light": "https://media.brand.dev/67c5dfb8-f7f5-411f-90c7-1e75239fe4ad.svg",
-    "dark": "https://media.brand.dev/67c5dfb8-f7f5-411f-90c7-1e75239fe4ad.svg"
-  },
-  "favicon": "https://media.brand.dev/0153052c-ecae-40a8-abda-bbdf94883e6d.svg",
   "navbar": {
     "primary": {
       "type": "github",
