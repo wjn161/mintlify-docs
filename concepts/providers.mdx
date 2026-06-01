@@ -1,13 +1,13 @@
 ---
-title: "LLM Providers Available Through the TokenHub Platform"
+title: "LLM Providers Available Through the Inferoute Platform"
 sidebarTitle: "Providers"
-description: "TokenHub connects you to OpenAI, Anthropic, Google, Mistral, and more through a single API — no separate accounts or credentials required."
+description: "Inferoute connects you to OpenAI, Anthropic, Google, Mistral, and more through a single API — no separate accounts or credentials required."
 ---
 
-TokenHub gives you access to the leading LLM providers through one unified endpoint. Rather than managing separate API keys, SDKs, and request formats for each provider, you send all your requests to TokenHub's OpenAI-compatible API and let the platform handle provider authentication, request translation, and response normalization. Your application code stays consistent regardless of which provider processes a given request.
+Inferoute gives you access to the leading LLM providers through one unified endpoint. Rather than managing separate API keys, SDKs, and request formats for each provider, you send all your requests to Inferoute's OpenAI-compatible API and let the platform handle provider authentication, request translation, and response normalization. Your application code stays consistent regardless of which provider processes a given request.
 
 <Info>
-  Provider pricing is passed through at cost with a small TokenHub routing fee added on top. You pay the provider's published token rates — TokenHub does not mark up model prices.
+  Provider pricing is passed through at cost with a small Inferoute routing fee added on top. You pay the provider's published token rates — Inferoute does not mark up model prices.
 </Info>
 
 ## Supported providers
@@ -22,7 +22,7 @@ TokenHub gives you access to the leading LLM providers through one unified endpo
 
 ### OpenAI
 
-TokenHub supports the full OpenAI model lineup including the latest GPT-4o for multimodal tasks, GPT-4 for high-accuracy text tasks, and GPT-3.5 Turbo for fast, cost-efficient workloads. OpenAI models are also available for text embeddings.
+Inferoute supports the full OpenAI model lineup including the latest GPT-4o for multimodal tasks, GPT-4 for high-accuracy text tasks, and GPT-3.5 Turbo for fast, cost-efficient workloads. OpenAI models are also available for text embeddings.
 
 ### Anthropic
 
@@ -38,15 +38,15 @@ Mistral models are European-hosted and offer strong multilingual performance. Mi
 
 ### Meta Llama (hosted)
 
-Meta's Llama 3.1 models are available through TokenHub via third-party hosting partners. You access them through the same TokenHub endpoint — no need to provision your own hosting infrastructure.
+Meta's Llama 3.1 models are available through Inferoute via third-party hosting partners. You access them through the same Inferoute endpoint — no need to provision your own hosting infrastructure.
 
 ## Authentication and credentials
 
-You do not need a separate account with each provider. TokenHub manages provider credentials on your behalf. All you need is a single TokenHub API key, which you pass as the `Authorization` header in every request.
+You do not need a separate account with each provider. Inferoute manages provider credentials on your behalf. All you need is a single Inferoute API key, which you pass as the `Authorization` header in every request.
 
 ```bash
-curl https://api.tokenhub.ai/v1/chat/completions \
-  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+curl https://api.inferoute.ai/v1/chat/completions \
+  -H "Authorization: Bearer $INFEROUTE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "anthropic/claude-3-5-sonnet",
@@ -54,16 +54,16 @@ curl https://api.tokenhub.ai/v1/chat/completions \
   }'
 ```
 
-TokenHub securely stores and rotates provider credentials. Provider keys are never exposed in API responses or logs.
+Inferoute securely stores and rotates provider credentials. Provider keys are never exposed in API responses or logs.
 
 ## Real-time availability monitoring
 
-TokenHub continuously monitors the health of every provider. Metrics tracked include:
+Inferoute continuously monitors the health of every provider. Metrics tracked include:
 
 - **Uptime**: whether the provider's API is returning successful responses
 - **Latency**: current p50 and p95 response times per model
 - **Error rate**: percentage of requests returning 5xx or timeout errors
 
-When a provider experiences degraded performance or an outage, TokenHub's routing engine automatically deprioritizes or bypasses it. If you have the availability or latency strategy active, your requests are rerouted to healthy providers without any action on your part.
+When a provider experiences degraded performance or an outage, Inferoute's routing engine automatically deprioritizes or bypasses it. If you have the availability or latency strategy active, your requests are rerouted to healthy providers without any action on your part.
 
-You can view current provider status at `status.tokenhub.ai`.
+You can view current provider status at `status.inferoute.ai`.

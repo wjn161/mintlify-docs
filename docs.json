@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "name": "TokenHub",
+  "name": "Inferoute",
   "theme": "luma",
   "colors": {
     "primary": "#235ad6",

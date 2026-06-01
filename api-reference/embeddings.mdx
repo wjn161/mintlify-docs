@@ -9,7 +9,7 @@ The embeddings endpoint converts text into high-dimensional numeric vectors that
 ## Endpoint
 
 ```
-POST https://api.tokenhub.ai/v1/embeddings
+POST https://api.inferoute.ai/v1/embeddings
 ```
 
 ## Request parameters
@@ -72,13 +72,13 @@ POST https://api.tokenhub.ai/v1/embeddings
 <CodeGroup>
 
 ```bash curl
-curl https://api.tokenhub.ai/v1/embeddings \
+curl https://api.inferoute.ai/v1/embeddings \
   --request POST \
   --header "Authorization: Bearer YOUR_API_KEY" \
   --header "Content-Type: application/json" \
   --data '{
     "model": "text-embedding-3-small",
-    "input": "TokenHub routes your LLM requests intelligently."
+    "input": "Inferoute routes your LLM requests intelligently."
   }'
 ```
 
@@ -87,12 +87,12 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://api.tokenhub.ai/v1",
+    base_url="https://api.inferoute.ai/v1",
 )
 
 response = client.embeddings.create(
     model="text-embedding-3-small",
-    input="TokenHub routes your LLM requests intelligently.",
+    input="Inferoute routes your LLM requests intelligently.",
 )
 vector = response.data[0].embedding
 print(f"Embedding dimension: {len(vector)}")
@@ -125,7 +125,7 @@ print(f"Embedding dimension: {len(vector)}")
 <CodeGroup>
 
 ```bash curl
-curl https://api.tokenhub.ai/v1/embeddings \
+curl https://api.inferoute.ai/v1/embeddings \
   --request POST \
   --header "Authorization: Bearer YOUR_API_KEY" \
   --header "Content-Type: application/json" \
@@ -144,7 +144,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://api.tokenhub.ai/v1",
+    base_url="https://api.inferoute.ai/v1",
 )
 
 texts = [

@@ -1,7 +1,7 @@
 {
   "projectType": "saas",
-  "projectName": "TokenHub",
-  "projectDescription": "TokenHub (Inferoute) is an AI inference routing platform that provides a unified API gateway to intelligently route requests across multiple LLM providers, optimizing for cost, latency, and availability.",
+  "projectName": "Inferoute",
+  "projectDescription": "Inferoute (Inferoute) is an AI inference routing platform that provides a unified API gateway to intelligently route requests across multiple LLM providers, optimizing for cost, latency, and availability.",
   "theme": "luma",
   "primaryColor": "#235ad6",
   "lightColor": "#689eea",

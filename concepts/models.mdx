@@ -1,10 +1,10 @@
 ---
-title: "How to Select and Use Models Across Providers in TokenHub"
+title: "How to Select and Use Models Across Providers in Inferoute"
 sidebarTitle: "Models"
-description: "Specify models by provider-prefixed name, short alias, or use 'auto' to let TokenHub select the best available model for your request."
+description: "Specify models by provider-prefixed name, short alias, or use 'auto' to let Inferoute select the best available model for your request."
 ---
 
-TokenHub uses the same `model` parameter you already know from the OpenAI API. You pass a model name in your request, and TokenHub resolves it to the appropriate provider and model version. You can be as specific as you want — pinning a request to a particular provider and model — or as general as you want, delegating the selection to TokenHub entirely.
+Inferoute uses the same `model` parameter you already know from the OpenAI API. You pass a model name in your request, and Inferoute resolves it to the appropriate provider and model version. You can be as specific as you want — pinning a request to a particular provider and model — or as general as you want, delegating the selection to Inferoute entirely.
 
 <Tip>
   Use short aliases like `gpt-4o` and `claude-3-5-sonnet` instead of provider-prefixed names like `openai/gpt-4o`. Aliases keep your code provider-agnostic, making it easy to swap providers without modifying requests.
@@ -12,7 +12,7 @@ TokenHub uses the same `model` parameter you already know from the OpenAI API. Y
 
 ## Model naming formats
 
-TokenHub supports three model naming formats.
+Inferoute supports three model naming formats.
 
 ### Provider-prefixed names
 
@@ -28,7 +28,7 @@ meta/llama-3.1-70b
 
 ### Short aliases
 
-Shorthand names that map to a canonical model across providers. TokenHub resolves the alias to the best available endpoint for that model.
+Shorthand names that map to a canonical model across providers. Inferoute resolves the alias to the best available endpoint for that model.
 
 | Alias | Resolves to |
 |-------|-------------|
@@ -44,7 +44,7 @@ Shorthand names that map to a canonical model across providers. TokenHub resolve
 
 ### Auto selection
 
-Setting `model` to `"auto"` tells TokenHub to pick the most suitable model for your request based on its content, your active routing strategy, and current provider availability.
+Setting `model` to `"auto"` tells Inferoute to pick the most suitable model for your request based on its content, your active routing strategy, and current provider availability.
 
 ```python
 response = client.chat.completions.create(
@@ -63,8 +63,8 @@ The following examples show how to use each naming format in a standard chat com
 import openai
 
 client = openai.OpenAI(
-    base_url="https://api.tokenhub.ai/v1",
-    api_key="YOUR_TOKENHUB_API_KEY",
+    base_url="https://api.inferoute.ai/v1",
+    api_key="YOUR_INFEROUTE_API_KEY",
 )
 
 # Provider-prefixed: always uses Anthropic
@@ -79,7 +79,7 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": "What is the boiling point of water?"}],
 )
 
-# Auto: TokenHub decides
+# Auto: Inferoute decides
 response = client.chat.completions.create(
     model="auto",
     messages=[{"role": "user", "content": "What is the boiling point of water?"}],
@@ -92,8 +92,8 @@ print(response.choices[0].message.content)
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  baseURL: "https://api.tokenhub.ai/v1",
-  apiKey: process.env.TOKENHUB_API_KEY,
+  baseURL: "https://api.inferoute.ai/v1",
+  apiKey: process.env.INFEROUTE_API_KEY,
 });
 
 // Provider-prefixed: always uses Google
@@ -108,7 +108,7 @@ const response2 = await client.chat.completions.create({
   messages: [{ role: "user", content: "What is the boiling point of water?" }],
 });
 
-// Auto: TokenHub decides
+// Auto: Inferoute decides
 const response3 = await client.chat.completions.create({
   model: "auto",
   messages: [{ role: "user", content: "What is the boiling point of water?" }],
@@ -119,20 +119,20 @@ console.log(response.choices[0].message.content);
 
 ```bash bash
 # Provider-prefixed
-curl https://api.tokenhub.ai/v1/chat/completions \
-  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+curl https://api.inferoute.ai/v1/chat/completions \
+  -H "Authorization: Bearer $INFEROUTE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model": "mistral/mistral-large", "messages": [{"role": "user", "content": "Hello"}]}'
 
 # Short alias
-curl https://api.tokenhub.ai/v1/chat/completions \
-  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+curl https://api.inferoute.ai/v1/chat/completions \
+  -H "Authorization: Bearer $INFEROUTE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model": "mistral-large", "messages": [{"role": "user", "content": "Hello"}]}'
 
 # Auto
-curl https://api.tokenhub.ai/v1/chat/completions \
-  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+curl https://api.inferoute.ai/v1/chat/completions \
+  -H "Authorization: Bearer $INFEROUTE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model": "auto", "messages": [{"role": "user", "content": "Hello"}]}'
 ```
@@ -141,7 +141,7 @@ curl https://api.tokenhub.ai/v1/chat/completions \
 
 ## Model capabilities
 
-Different models support different features. The table below summarizes key capabilities for the models available on TokenHub.
+Different models support different features. The table below summarizes key capabilities for the models available on Inferoute.
 
 | Model | Context window | Multimodal input | Max output tokens |
 |-------|---------------|-----------------|-------------------|

@@ -1,10 +1,10 @@
 ---
 title: "API Error Codes and Responses"
 sidebarTitle: "Errors"
-description: "TokenHub returns standard HTTP status codes with JSON error bodies. Learn which codes to expect, what they mean, and how to handle retries in your application."
+description: "Inferoute returns standard HTTP status codes with JSON error bodies. Learn which codes to expect, what they mean, and how to handle retries in your application."
 ---
 
-TokenHub uses standard HTTP status codes to indicate the outcome of every request. Errors always return a JSON body so your application can parse the failure reason programmatically and react accordingly.
+Inferoute uses standard HTTP status codes to indicate the outcome of every request. Errors always return a JSON body so your application can parse the failure reason programmatically and react accordingly.
 
 ## Error response format
 
@@ -36,7 +36,7 @@ All error responses share this structure:
 | `404 Not Found` | `not_found_error` | Model not found or endpoint path is invalid |
 | `422 Unprocessable Entity` | `invalid_request_error` | Valid JSON but parameter values fail validation (e.g., `temperature` out of range) |
 | `429 Too Many Requests` | `rate_limit_error` | Request rate limit exceeded |
-| `500 Internal Server Error` | `api_error` | Internal TokenHub error or unexpected provider failure |
+| `500 Internal Server Error` | `api_error` | Internal Inferoute error or unexpected provider failure |
 | `503 Service Unavailable` | `provider_error` | All configured providers (including fallbacks) are unavailable |
 
 ## Retry logic
@@ -66,7 +66,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://api.tokenhub.ai/v1",
+    base_url="https://api.inferoute.ai/v1",
 )
 
 RETRYABLE_STATUS_CODES = {429, 500, 503}

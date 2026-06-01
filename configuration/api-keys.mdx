@@ -1,14 +1,14 @@
 ---
-title: "Manage TokenHub API Keys"
+title: "Manage Inferoute API Keys"
 sidebarTitle: "API Keys"
-description: "Create, rotate, and revoke TokenHub API keys from the dashboard. Set expiration dates, restrict keys to specific models, and isolate access by environment."
+description: "Create, rotate, and revoke Inferoute API keys from the dashboard. Set expiration dates, restrict keys to specific models, and isolate access by environment."
 ---
 
-TokenHub uses API keys to authenticate every request you make to the platform. You can create multiple keys to isolate access by environment or team, set expiration dates, and revoke any key instantly from the dashboard.
+Inferoute uses API keys to authenticate every request you make to the platform. You can create multiple keys to isolate access by environment or team, set expiration dates, and revoke any key instantly from the dashboard.
 
 ## Creating an API key
 
-Navigate to **Settings → API Keys** in the TokenHub dashboard and follow these steps:
+Navigate to **Settings → API Keys** in the Inferoute dashboard and follow these steps:
 
 <Steps>
   <Step title="Open the API Keys page">
@@ -27,7 +27,7 @@ Navigate to **Settings → API Keys** in the TokenHub dashboard and follow these
     Under **Model Restrictions**, select the models or providers this key is allowed to call. Leave unrestricted to allow all models.
   </Step>
   <Step title="Copy your key immediately">
-    After clicking **Create**, the full key is displayed exactly once. Copy it now and store it securely — TokenHub does not show the key value again after you close this dialog.
+    After clicking **Create**, the full key is displayed exactly once. Copy it now and store it securely — Inferoute does not show the key value again after you close this dialog.
   </Step>
 </Steps>
 
@@ -46,10 +46,10 @@ From **Settings → API Keys** you can:
 ## Best practices
 
 - **One key per environment.** Use separate keys for development, staging, and production so that a leaked dev key cannot affect production traffic.
-- **Store keys in environment variables.** Set the key as `TOKENHUB_API_KEY` in your environment rather than hardcoding it in source code.
+- **Store keys in environment variables.** Set the key as `INFEROUTE_API_KEY` in your environment rather than hardcoding it in source code.
 
 ```bash
-export TOKENHUB_API_KEY="th-..."
+export INFEROUTE_API_KEY="th-..."
 ```
 
 - **Rotate keys regularly.** Establish a rotation schedule (for example, every 90 days) to limit the blast radius of any undetected exposure.

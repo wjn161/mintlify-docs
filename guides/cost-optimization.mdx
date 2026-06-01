@@ -1,10 +1,10 @@
 ---
-title: "Optimize LLM Costs with TokenHub Routing"
+title: "Optimize LLM Costs with Inferoute Routing"
 sidebarTitle: "Cost Optimization"
 description: "Reduce AI spend using cost-optimized routing, right-sizing models by task complexity, usage caps, and dashboard monitoring — without changing application logic."
 ---
 
-TokenHub sits between your application and LLM providers, which gives it visibility into every request and the ability to route intelligently based on cost. This guide walks through four strategies to reduce your LLM spend, from using built-in routing headers to monitoring waste in the dashboard.
+Inferoute sits between your application and LLM providers, which gives it visibility into every request and the ability to route intelligently based on cost. This guide walks through four strategies to reduce your LLM spend, from using built-in routing headers to monitoring waste in the dashboard.
 
 ## Cost reference
 
@@ -24,20 +24,20 @@ Routing a classification task from `openai/gpt-4o` to `openai/gpt-4o-mini` is a 
 
 <Steps>
   <Step title="Audit your current model usage">
-    Open the [Usage dashboard](https://app.tokenhub.ai/usage) and filter by model to see where your spend is concentrated. Sort by cost descending to find the highest-impact models.
+    Open the [Usage dashboard](https://app.inferoute.ai/usage) and filter by model to see where your spend is concentrated. Sort by cost descending to find the highest-impact models.
 
     Look for requests going to premium models that could be handled by cheaper alternatives — classification, extraction, short summarization, and Q&A over structured data are common candidates.
   </Step>
 
   <Step title="Enable cost-optimized routing for eligible requests">
-    Add the `X-Inferoute-Strategy: cost` header to requests where output quality is not critically sensitive. TokenHub will select the cheapest model that can satisfy the request at that moment.
+    Add the `X-Inferoute-Strategy: cost` header to requests where output quality is not critically sensitive. Inferoute will select the cheapest model that can satisfy the request at that moment.
 
     ```python python
     from openai import OpenAI
 
     client = OpenAI(
         api_key="th-your-api-key",
-        base_url="https://api.tokenhub.ai/v1",
+        base_url="https://api.inferoute.ai/v1",
     )
 
     response = client.chat.completions.create(
@@ -133,7 +133,7 @@ Routing a classification task from `openai/gpt-4o` to `openai/gpt-4o-mini` is a 
   </Step>
 
   <Step title="Set usage caps per API key">
-    In the [API Keys](https://app.tokenhub.ai/keys) section of the dashboard, set a monthly spend limit per key. When the cap is reached, the key returns a `429` response instead of continuing to accrue charges.
+    In the [API Keys](https://app.inferoute.ai/keys) section of the dashboard, set a monthly spend limit per key. When the cap is reached, the key returns a `429` response instead of continuing to accrue charges.
 
     This is useful for:
 
@@ -143,7 +143,7 @@ Routing a classification task from `openai/gpt-4o` to `openai/gpt-4o-mini` is a 
   </Step>
 
   <Step title="Monitor and iterate">
-    Return to the [Usage dashboard](https://app.tokenhub.ai/usage) weekly. Filter by:
+    Return to the [Usage dashboard](https://app.inferoute.ai/usage) weekly. Filter by:
 
     - **Model** — confirm that cost-optimized routing is being applied to the right request types
     - **Provider** — check whether any provider is disproportionately expensive
@@ -160,7 +160,7 @@ The `X-Inferoute-Strategy: cost` header and the `economy` alias are the fastest 
 <CodeGroup>
 
 ```python python
-# Strategy header: TokenHub picks the cheapest available model
+# Strategy header: Inferoute picks the cheapest available model
 response = client.chat.completions.create(
     model="auto",
     messages=[{"role": "user", "content": "Extract all dates from this text: ..."}],
@@ -175,7 +175,7 @@ response = client.chat.completions.create(
 ```
 
 ```javascript node.js
-// Strategy header: TokenHub picks the cheapest available model
+// Strategy header: Inferoute picks the cheapest available model
 const response = await client.chat.completions.create(
   {
     model: "auto",
@@ -195,14 +195,14 @@ const response2 = await client.chat.completions.create({
 
 ```bash curl
 # Strategy header
-curl https://api.tokenhub.ai/v1/chat/completions \
+curl https://api.inferoute.ai/v1/chat/completions \
   -H "Authorization: Bearer th-your-api-key" \
   -H "Content-Type: application/json" \
   -H "X-Inferoute-Strategy: cost" \
   -d '{"model": "auto", "messages": [{"role": "user", "content": "Extract all dates from this text: ..."}]}'
 
 # Economy alias
-curl https://api.tokenhub.ai/v1/chat/completions \
+curl https://api.inferoute.ai/v1/chat/completions \
   -H "Authorization: Bearer th-your-api-key" \
   -H "Content-Type: application/json" \
   -d '{"model": "economy", "messages": [{"role": "user", "content": "Extract all dates from this text: ..."}]}'

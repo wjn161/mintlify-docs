@@ -1,10 +1,10 @@
 ---
-title: "Understanding TokenHub Rate Limits"
+title: "Understanding Inferoute Rate Limits"
 sidebarTitle: "Rate Limits"
-description: "Learn how TokenHub enforces per-key rate limits, read limit headers in API responses, and handle 429 errors with exponential backoff."
+description: "Learn how Inferoute enforces per-key rate limits, read limit headers in API responses, and handle 429 errors with exponential backoff."
 ---
 
-TokenHub enforces rate limits on every API key to ensure fair usage across all customers and to protect system stability. Limits are measured in requests per minute (RPM) and tokens per minute (TPM). When you exceed a limit, the API returns a `429 Too Many Requests` response until the window resets.
+Inferoute enforces rate limits on every API key to ensure fair usage across all customers and to protect system stability. Limits are measured in requests per minute (RPM) and tokens per minute (TPM). When you exceed a limit, the API returns a `429 Too Many Requests` response until the window resets.
 
 ## Default limit tiers
 
@@ -14,7 +14,7 @@ TokenHub enforces rate limits on every API key to ensure fair usage across all c
 | Pro        | 600                       | 1,000,000               |
 | Enterprise | Custom                    | Custom                  |
 
-Contact [support@tokenhub.ai](mailto:support@tokenhub.ai) to request a limit increase for your plan.
+Contact [support@inferoute.ai](mailto:support@inferoute.ai) to request a limit increase for your plan.
 
 ## Rate limit headers
 
@@ -45,8 +45,8 @@ import random
 import openai
 
 client = openai.OpenAI(
-    base_url="https://api.tokenhub.ai/v1",
-    api_key="YOUR_TOKENHUB_API_KEY",
+    base_url="https://api.inferoute.ai/v1",
+    api_key="YOUR_INFEROUTE_API_KEY",
 )
 
 def chat_with_backoff(**kwargs):
@@ -73,8 +73,8 @@ response = chat_with_backoff(
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  baseURL: "https://api.tokenhub.ai/v1",
-  apiKey: process.env.TOKENHUB_API_KEY,
+  baseURL: "https://api.inferoute.ai/v1",
+  apiKey: process.env.INFEROUTE_API_KEY,
 });
 
 async function chatWithBackoff(params, maxRetries = 5) {
@@ -101,5 +101,5 @@ const response = await chatWithBackoff({
 </CodeGroup>
 
 <Note>
-TokenHub rate limits are separate from any limits enforced by the underlying providers. Even if you are within your TokenHub limits, a provider may throttle the request on their end. TokenHub will surface those errors with the same `429` status code and attempt automatic retries according to your routing configuration.
+Inferoute rate limits are separate from any limits enforced by the underlying providers. Even if you are within your Inferoute limits, a provider may throttle the request on their end. Inferoute will surface those errors with the same `429` status code and attempt automatic retries according to your routing configuration.
 </Note>

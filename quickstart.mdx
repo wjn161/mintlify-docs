@@ -1,13 +1,13 @@
 ---
-title: "Get Started with TokenHub"
-description: "Learn how to create a TokenHub account, generate an API key, and send your first chat completion request in under five minutes using the OpenAI SDK or curl."
+title: "Get Started with Inferoute"
+description: "Learn how to create a Inferoute account, generate an API key, and send your first chat completion request in under five minutes using the OpenAI SDK or curl."
 ---
 
-TokenHub is OpenAI-compatible, so you can start routing requests through it using tools you already have. This guide walks you through creating an account, generating an API key, and making your first chat completion request.
+Inferoute is OpenAI-compatible, so you can start routing requests through it using tools you already have. This guide walks you through creating an account, generating an API key, and making your first chat completion request.
 
 <Steps>
-  <Step title="Sign up for TokenHub">
-    Create a free account at [tokenhub.ai](https://tokenhub.ai). After signing up, you'll land in the TokenHub dashboard where you can manage API keys, view usage, and configure routing.
+  <Step title="Sign up for Inferoute">
+    Create a free account at [inferoute.ai](https://inferoute.ai). After signing up, you'll land in the Inferoute dashboard where you can manage API keys, view usage, and configure routing.
   </Step>
 
   <Step title="Generate an API key">
@@ -19,7 +19,7 @@ TokenHub is OpenAI-compatible, so you can start routing requests through it usin
   </Step>
 
   <Step title="Install the OpenAI SDK (optional)">
-    TokenHub works with the standard OpenAI SDK. If you prefer to use raw HTTP, skip this step.
+    Inferoute works with the standard OpenAI SDK. If you prefer to use raw HTTP, skip this step.
 
     <CodeGroup>
 
@@ -35,7 +35,7 @@ TokenHub is OpenAI-compatible, so you can start routing requests through it usin
   </Step>
 
   <Step title="Configure the base URL and API key">
-    Point the SDK or your HTTP client at the TokenHub API endpoint. Replace `YOUR_TOKENHUB_API_KEY` with the key you generated.
+    Point the SDK or your HTTP client at the Inferoute API endpoint. Replace `YOUR_INFEROUTE_API_KEY` with the key you generated.
 
     <CodeGroup>
 
@@ -44,8 +44,8 @@ TokenHub is OpenAI-compatible, so you can start routing requests through it usin
     from openai import OpenAI
 
     client = OpenAI(
-        base_url="https://api.tokenhub.ai/v1",
-        api_key=os.environ["TOKENHUB_API_KEY"],
+        base_url="https://api.inferoute.ai/v1",
+        api_key=os.environ["INFEROUTE_API_KEY"],
     )
     ```
 
@@ -53,8 +53,8 @@ TokenHub is OpenAI-compatible, so you can start routing requests through it usin
     import OpenAI from "openai";
 
     const client = new OpenAI({
-      baseURL: "https://api.tokenhub.ai/v1",
-      apiKey: process.env.TOKENHUB_API_KEY,
+      baseURL: "https://api.inferoute.ai/v1",
+      apiKey: process.env.INFEROUTE_API_KEY,
     });
     ```
 
@@ -71,8 +71,8 @@ TokenHub is OpenAI-compatible, so you can start routing requests through it usin
     from openai import OpenAI
 
     client = OpenAI(
-        base_url="https://api.tokenhub.ai/v1",
-        api_key=os.environ["TOKENHUB_API_KEY"],
+        base_url="https://api.inferoute.ai/v1",
+        api_key=os.environ["INFEROUTE_API_KEY"],
     )
 
     response = client.chat.completions.create(
@@ -89,8 +89,8 @@ TokenHub is OpenAI-compatible, so you can start routing requests through it usin
     import OpenAI from "openai";
 
     const client = new OpenAI({
-      baseURL: "https://api.tokenhub.ai/v1",
-      apiKey: process.env.TOKENHUB_API_KEY,
+      baseURL: "https://api.inferoute.ai/v1",
+      apiKey: process.env.INFEROUTE_API_KEY,
     });
 
     const response = await client.chat.completions.create({
@@ -104,8 +104,8 @@ TokenHub is OpenAI-compatible, so you can start routing requests through it usin
     ```
 
     ```bash curl
-    curl https://api.tokenhub.ai/v1/chat/completions \
-      -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+    curl https://api.inferoute.ai/v1/chat/completions \
+      -H "Authorization: Bearer $INFEROUTE_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
         "model": "gpt-4o-mini",
@@ -146,9 +146,9 @@ TokenHub is OpenAI-compatible, so you can start routing requests through it usin
 </Steps>
 
 <Tip>
-  You can use any OpenAI-compatible model name in the `model` field — including Anthropic, Google, and Mistral models. TokenHub maps the model name to the appropriate provider automatically. See the [models reference](/concepts/models) for the full list of supported model identifiers.
+  You can use any OpenAI-compatible model name in the `model` field — including Anthropic, Google, and Mistral models. Inferoute maps the model name to the appropriate provider automatically. See the [models reference](/concepts/models) for the full list of supported model identifiers.
 </Tip>
 
 <Note>
-  Every request you make appears in the TokenHub dashboard under **Usage**. From there you can monitor token consumption, estimated costs, and which providers handled each request.
+  Every request you make appears in the Inferoute dashboard under **Usage**. From there you can monitor token consumption, estimated costs, and which providers handled each request.
 </Note>

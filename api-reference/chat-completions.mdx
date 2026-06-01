@@ -4,12 +4,12 @@ sidebarTitle: "Chat completions"
 description: "Create chat completions. Accepts messages array and model, returns assistant message. Supports streaming, function calling, and all OpenAI-compatible params."
 ---
 
-The chat completions endpoint is the primary way to interact with language models on TokenHub. You send a `messages` array representing a conversation, and the API returns the next assistant message. The request body is fully OpenAI-compatible — any payload that works with the OpenAI Chat Completions API works here.
+The chat completions endpoint is the primary way to interact with language models on Inferoute. You send a `messages` array representing a conversation, and the API returns the next assistant message. The request body is fully OpenAI-compatible — any payload that works with the OpenAI Chat Completions API works here.
 
 ## Endpoint
 
 ```
-POST https://api.tokenhub.ai/v1/chat/completions
+POST https://api.inferoute.ai/v1/chat/completions
 ```
 
 ## Request parameters
@@ -122,7 +122,7 @@ POST https://api.tokenhub.ai/v1/chat/completions
 <CodeGroup>
 
 ```bash curl
-curl https://api.tokenhub.ai/v1/chat/completions \
+curl https://api.inferoute.ai/v1/chat/completions \
   --request POST \
   --header "Authorization: Bearer YOUR_API_KEY" \
   --header "Content-Type: application/json" \
@@ -142,7 +142,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://api.tokenhub.ai/v1",
+    base_url="https://api.inferoute.ai/v1",
 )
 
 response = client.chat.completions.create(
@@ -187,7 +187,7 @@ print(response.choices[0].message.content)
 ### Routing strategy and fallback
 
 ```bash curl
-curl https://api.tokenhub.ai/v1/chat/completions \
+curl https://api.inferoute.ai/v1/chat/completions \
   --request POST \
   --header "Authorization: Bearer YOUR_API_KEY" \
   --header "Content-Type: application/json" \
@@ -206,7 +206,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://api.tokenhub.ai/v1",
+    base_url="https://api.inferoute.ai/v1",
 )
 
 stream = client.chat.completions.create(

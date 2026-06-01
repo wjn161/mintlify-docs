@@ -1,15 +1,15 @@
 ---
-title: "TokenHub REST API Reference"
+title: "Inferoute REST API Reference"
 sidebarTitle: "Overview"
-description: "Complete reference for the TokenHub REST API. Route LLM requests across providers using an OpenAI-compatible interface at https://api.tokenhub.ai/v1."
+description: "Complete reference for the Inferoute REST API. Route LLM requests across providers using an OpenAI-compatible interface at https://api.inferoute.ai/v1."
 ---
 
-TokenHub exposes an OpenAI-compatible REST API that lets you send inference requests to multiple LLM providers through a single unified endpoint. Every request goes to `https://api.tokenhub.ai/v1`, accepts JSON, and returns JSON — so any tooling that works with the OpenAI API works with TokenHub as well.
+Inferoute exposes an OpenAI-compatible REST API that lets you send inference requests to multiple LLM providers through a single unified endpoint. Every request goes to `https://api.inferoute.ai/v1`, accepts JSON, and returns JSON — so any tooling that works with the OpenAI API works with Inferoute as well.
 
 ## Base URL
 
 ```bash
-https://api.tokenhub.ai/v1
+https://api.inferoute.ai/v1
 ```
 
 ## Authentication
@@ -42,13 +42,13 @@ See [Authentication](/api-reference/authentication) for full details and code ex
     Generate vector representations of text for semantic search, RAG pipelines, and classification.
   </Card>
   <Card title="Models" icon="list" href="/api-reference/models">
-    Retrieve the full list of models available on TokenHub, including provider, context window, and capabilities.
+    Retrieve the full list of models available on Inferoute, including provider, context window, and capabilities.
   </Card>
 </CardGroup>
 
 ## OpenAI SDK compatibility
 
-Because TokenHub implements the OpenAI API spec, you can use any OpenAI SDK by pointing `base_url` at TokenHub:
+Because Inferoute implements the OpenAI API spec, you can use any OpenAI SDK by pointing `base_url` at Inferoute:
 
 <CodeGroup>
 
@@ -56,8 +56,8 @@ Because TokenHub implements the OpenAI API spec, you can use any OpenAI SDK by p
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="YOUR_TOKENHUB_API_KEY",
-    base_url="https://api.tokenhub.ai/v1",
+    api_key="YOUR_INFEROUTE_API_KEY",
+    base_url="https://api.inferoute.ai/v1",
 )
 
 response = client.chat.completions.create(
@@ -71,8 +71,8 @@ print(response.choices[0].message.content)
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  apiKey: "YOUR_TOKENHUB_API_KEY",
-  baseURL: "https://api.tokenhub.ai/v1",
+  apiKey: "YOUR_INFEROUTE_API_KEY",
+  baseURL: "https://api.inferoute.ai/v1",
 });
 
 const response = await client.chat.completions.create({
@@ -84,9 +84,9 @@ console.log(response.choices[0].message.content);
 
 </CodeGroup>
 
-## TokenHub-specific headers
+## Inferoute-specific headers
 
-TokenHub extends the OpenAI request/response contract with a small set of headers for routing control and observability.
+Inferoute extends the OpenAI request/response contract with a small set of headers for routing control and observability.
 
 ### Request headers
 

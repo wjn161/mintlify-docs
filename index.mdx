@@ -1,41 +1,41 @@
 ---
-title: "TokenHub: AI Inference Routing for Every Team"
-description: "TokenHub gives you a single OpenAI-compatible API endpoint that routes requests across multiple LLM providers, optimizing for cost, speed, and reliability."
+title: "Inferoute: AI Inference Routing for Every Team"
+description: "Inferoute gives you a single OpenAI-compatible API endpoint that routes requests across multiple LLM providers, optimizing for cost, speed, and reliability."
 ---
 
-TokenHub is an AI inference routing platform that puts every major LLM provider behind a single, unified API. Instead of managing separate credentials, rate limits, and SDKs for OpenAI, Anthropic, Google, Mistral, and others, you connect once to TokenHub and let it route your requests to the right model at the right time — automatically balancing cost, latency, and availability.
+Inferoute is an AI inference routing platform that puts every major LLM provider behind a single, unified API. Instead of managing separate credentials, rate limits, and SDKs for OpenAI, Anthropic, Google, Mistral, and others, you connect once to Inferoute and let it route your requests to the right model at the right time — automatically balancing cost, latency, and availability.
 
 <CardGroup cols={2}>
   <Card title="Quick Start" icon="rocket" href="/quickstart">
-    Make your first AI request through TokenHub in under five minutes.
+    Make your first AI request through Inferoute in under five minutes.
   </Card>
   <Card title="Authentication" icon="key" href="/authentication">
     Generate an API key and learn how to authenticate every request.
   </Card>
   <Card title="Model Selection" icon="sliders" href="/guides/model-selection">
-    Choose models by name, capability tier, or let TokenHub pick automatically.
+    Choose models by name, capability tier, or let Inferoute pick automatically.
   </Card>
   <Card title="API Reference" icon="code" href="/api-reference/overview">
     Explore the full OpenAI-compatible REST API with request and response examples.
   </Card>
 </CardGroup>
 
-## How TokenHub works
+## How Inferoute works
 
-TokenHub sits between your application and every LLM provider. You send a standard request to the TokenHub API, and it handles provider selection, authentication, retries, and fallback — transparently returning the model's response as if you called the provider directly.
+Inferoute sits between your application and every LLM provider. You send a standard request to the Inferoute API, and it handles provider selection, authentication, retries, and fallback — transparently returning the model's response as if you called the provider directly.
 
 <Steps>
   <Step title="Create an account">
-    Sign up at [tokenhub.ai](https://tokenhub.ai) and access your dashboard.
+    Sign up at [inferoute.ai](https://inferoute.ai) and access your dashboard.
   </Step>
   <Step title="Generate an API key">
     Go to **Settings → API Keys** and create a new key. Copy it somewhere safe — it won't be shown again.
   </Step>
   <Step title="Send your first request">
-    Use the TokenHub base URL (`https://api.tokenhub.ai/v1`) with any OpenAI-compatible SDK or HTTP client.
+    Use the Inferoute base URL (`https://api.inferoute.ai/v1`) with any OpenAI-compatible SDK or HTTP client.
   </Step>
   <Step title="Monitor usage">
-    Track token consumption, costs, and request routing in the TokenHub dashboard.
+    Track token consumption, costs, and request routing in the Inferoute dashboard.
   </Step>
 </Steps>
 
@@ -46,7 +46,7 @@ TokenHub sits between your application and every LLM provider. You send a standa
     Automatically select the fastest, cheapest, or most available provider for each request.
   </Card>
   <Card title="Automatic Fallback" icon="shield-check" href="/guides/fallback-routing">
-    If one provider goes down or rate-limits you, TokenHub retries with a backup automatically.
+    If one provider goes down or rate-limits you, Inferoute retries with a backup automatically.
   </Card>
   <Card title="Cost Optimization" icon="circle-dollar-to-slot" href="/guides/cost-optimization">
     Route to lower-cost models or providers without changing your application code.

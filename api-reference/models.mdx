@@ -1,18 +1,18 @@
 ---
 title: "GET /v1/models"
 sidebarTitle: "Models"
-description: "List all available models on TokenHub. Returns model IDs, provider, context window, and capabilities. Use model IDs in your chat and completion requests."
+description: "List all available models on Inferoute. Returns model IDs, provider, context window, and capabilities. Use model IDs in your chat and completion requests."
 ---
 
-The models endpoint returns every model currently available on TokenHub, along with metadata about each one. Use the `id` field from this response when specifying the `model` parameter in your chat, completion, and embedding requests.
+The models endpoint returns every model currently available on Inferoute, along with metadata about each one. Use the `id` field from this response when specifying the `model` parameter in your chat, completion, and embedding requests.
 
 ## Endpoint
 
 ```
-GET https://api.tokenhub.ai/v1/models
+GET https://api.inferoute.ai/v1/models
 ```
 
-No request body is required. Include your `Authorization` header as with all TokenHub requests.
+No request body is required. Include your `Authorization` header as with all Inferoute requests.
 
 ## Response fields
 
@@ -57,7 +57,7 @@ No request body is required. Include your `Authorization` header as with all Tok
 <CodeGroup>
 
 ```bash curl
-curl https://api.tokenhub.ai/v1/models \
+curl https://api.inferoute.ai/v1/models \
   --header "Authorization: Bearer YOUR_API_KEY"
 ```
 
@@ -66,7 +66,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="YOUR_API_KEY",
-    base_url="https://api.tokenhub.ai/v1",
+    base_url="https://api.inferoute.ai/v1",
 )
 
 models = client.models.list()
@@ -79,7 +79,7 @@ import OpenAI from "openai";
 
 const client = new OpenAI({
   apiKey: "YOUR_API_KEY",
-  baseURL: "https://api.tokenhub.ai/v1",
+  baseURL: "https://api.inferoute.ai/v1",
 });
 
 const models = await client.models.list();

@@ -1,13 +1,13 @@
 ---
-title: "Authenticate with TokenHub"
-description: "TokenHub authenticates requests with API keys passed as Bearer tokens. Learn how to generate a key, pass it in requests, and follow security best practices."
+title: "Authenticate with Inferoute"
+description: "Inferoute authenticates requests with API keys passed as Bearer tokens. Learn how to generate a key, pass it in requests, and follow security best practices."
 ---
 
-TokenHub authenticates every request using an API key passed as a Bearer token in the `Authorization` header. You generate API keys in the TokenHub dashboard and can create multiple keys for different environments, teams, or applications.
+Inferoute authenticates every request using an API key passed as a Bearer token in the `Authorization` header. You generate API keys in the Inferoute dashboard and can create multiple keys for different environments, teams, or applications.
 
 ## Generate an API key
 
-1. Sign in to your TokenHub dashboard at [tokenhub.ai](https://tokenhub.ai).
+1. Sign in to your Inferoute dashboard at [inferoute.ai](https://inferoute.ai).
 2. Go to **Settings → API Keys**.
 3. Click **New API key**.
 4. Enter a descriptive name for the key (for example, `production-app` or `dev-local`).
@@ -15,7 +15,7 @@ TokenHub authenticates every request using an API key passed as a Bearer token i
 6. Click **Create** and copy the key immediately — it will not be shown again.
 
 <Warning>
-  Copy your API key before closing the dialog. TokenHub stores only a hashed version of the key and cannot display it again after creation. If you lose a key, revoke it and create a new one.
+  Copy your API key before closing the dialog. Inferoute stores only a hashed version of the key and cannot display it again after creation. If you lose a key, revoke it and create a new one.
 </Warning>
 
 ## Pass the API key in requests
@@ -29,8 +29,8 @@ import os
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.tokenhub.ai/v1",
-    api_key=os.environ["TOKENHUB_API_KEY"],
+    base_url="https://api.inferoute.ai/v1",
+    api_key=os.environ["INFEROUTE_API_KEY"],
 )
 
 response = client.chat.completions.create(
@@ -43,8 +43,8 @@ response = client.chat.completions.create(
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  baseURL: "https://api.tokenhub.ai/v1",
-  apiKey: process.env.TOKENHUB_API_KEY,
+  baseURL: "https://api.inferoute.ai/v1",
+  apiKey: process.env.INFEROUTE_API_KEY,
 });
 
 const response = await client.chat.completions.create({
@@ -54,8 +54,8 @@ const response = await client.chat.completions.create({
 ```
 
 ```bash curl
-curl https://api.tokenhub.ai/v1/chat/completions \
-  -H "Authorization: Bearer $TOKENHUB_API_KEY" \
+curl https://api.inferoute.ai/v1/chat/completions \
+  -H "Authorization: Bearer $INFEROUTE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gpt-4o-mini",
@@ -67,17 +67,17 @@ curl https://api.tokenhub.ai/v1/chat/completions \
 
 ## Use environment variables
 
-Store your API key in an environment variable rather than hardcoding it in your application. The recommended variable name is `TOKENHUB_API_KEY`.
+Store your API key in an environment variable rather than hardcoding it in your application. The recommended variable name is `INFEROUTE_API_KEY`.
 
 ```bash
-export TOKENHUB_API_KEY="your_api_key_here"
+export INFEROUTE_API_KEY="your_api_key_here"
 ```
 
 For long-running applications, set the variable in your deployment environment (for example, in a `.env` file loaded by your framework, or through your cloud provider's secrets manager).
 
 ## Invalid and expired keys
 
-If you provide a missing, malformed, or expired API key, TokenHub returns a `401 Unauthorized` response:
+If you provide a missing, malformed, or expired API key, Inferoute returns a `401 Unauthorized` response:
 
 ```json
 {

@@ -1,18 +1,18 @@
 ---
 title: "Choose the Right Model for Your Use Case"
 sidebarTitle: "Model Selection"
-description: "Select models by provider-prefixed name, alias, or let TokenHub route automatically. Compare tiers and pick the right balance of quality, speed, and cost."
+description: "Select models by provider-prefixed name, alias, or let Inferoute route automatically. Compare tiers and pick the right balance of quality, speed, and cost."
 ---
 
-TokenHub gives you access to dozens of models across OpenAI, Anthropic, Google, Mistral, and other providers through a single API. You can specify a model by its full provider-prefixed name, use a TokenHub alias that abstracts the provider away, or let TokenHub choose automatically based on your routing strategy.
+Inferoute gives you access to dozens of models across OpenAI, Anthropic, Google, Mistral, and other providers through a single API. You can specify a model by its full provider-prefixed name, use a Inferoute alias that abstracts the provider away, or let Inferoute choose automatically based on your routing strategy.
 
 ## How model selection works
 
 There are three ways to specify a model in your request:
 
 1. **Provider-prefixed name** — explicitly targets a specific model from a specific provider: `openai/gpt-4o`, `anthropic/claude-3-5-sonnet`, `google/gemini-1.5-pro`
-2. **TokenHub alias** — a stable identifier like `premium`, `balanced`, or `economy` that maps to the best available model in that tier at request time
-3. **Auto-routing** — omit the `model` field entirely and set `X-Inferoute-Strategy: cost` or `X-Inferoute-Strategy: latency` to let TokenHub decide
+2. **Inferoute alias** — a stable identifier like `premium`, `balanced`, or `economy` that maps to the best available model in that tier at request time
+3. **Auto-routing** — omit the `model` field entirely and set `X-Inferoute-Strategy: cost` or `X-Inferoute-Strategy: latency` to let Inferoute decide
 
 ## Model categories
 
@@ -132,7 +132,7 @@ There are three ways to specify a model in your request:
 
     ```python python
     response = client.chat.completions.create(
-        model="economy",  # TokenHub alias — routes to cheapest available
+        model="economy",  # Inferoute alias — routes to cheapest available
         messages=[
             {"role": "user", "content": "Classify this support ticket as: billing, technical, or general."},
         ],
@@ -141,7 +141,7 @@ There are three ways to specify a model in your request:
 
     ```javascript node.js
     const response = await client.chat.completions.create({
-      model: "economy", // TokenHub alias — routes to cheapest available
+      model: "economy", // Inferoute alias — routes to cheapest available
       messages: [
         {
           role: "user",
@@ -158,27 +158,27 @@ There are three ways to specify a model in your request:
 
 ## Provider-agnostic code with aliases
 
-When you hardcode a provider-prefixed model name like `openai/gpt-4o`, swapping providers requires a code change. TokenHub aliases let you decouple your application from any specific provider.
+When you hardcode a provider-prefixed model name like `openai/gpt-4o`, swapping providers requires a code change. Inferoute aliases let you decouple your application from any specific provider.
 
 ```python python
 # Hardcoded — requires code change to switch providers
 model = "openai/gpt-4o"
 
-# Alias — TokenHub resolves to the best model in this tier
+# Alias — Inferoute resolves to the best model in this tier
 # You can update the alias mapping in the dashboard without touching code
 model = "premium"
 ```
 
-You can configure what each alias resolves to in the [Model Aliases](https://app.tokenhub.ai/aliases) section of your dashboard. This lets you A/B test new models, react to provider outages, or optimize costs — all without deploying code changes.
+You can configure what each alias resolves to in the [Model Aliases](https://app.inferoute.ai/aliases) section of your dashboard. This lets you A/B test new models, react to provider outages, or optimize costs — all without deploying code changes.
 
 ## Embeddings
 
-For embeddings, specify the model directly. TokenHub passes the request to the provider without modification.
+For embeddings, specify the model directly. Inferoute passes the request to the provider without modification.
 
 ```python python
 response = client.embeddings.create(
     model="openai/text-embedding-3-small",
-    input="TokenHub routes your LLM requests intelligently.",
+    input="Inferoute routes your LLM requests intelligently.",
 )
 
 embedding = response.data[0].embedding

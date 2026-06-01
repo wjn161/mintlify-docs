@@ -1,10 +1,10 @@
 ---
-title: "Understanding Token Usage and Cost Tracking in TokenHub"
+title: "Understanding Token Usage and Cost Tracking in Inferoute"
 sidebarTitle: "Tokens & Usage"
-description: "TokenHub tracks prompt and completion tokens on every request, reports usage in the standard OpenAI format, and provides dashboard tools to monitor spend."
+description: "Inferoute tracks prompt and completion tokens on every request, reports usage in the standard OpenAI format, and provides dashboard tools to monitor spend."
 ---
 
-TokenHub records token usage for every request you make and surfaces that data both in API responses and in your dashboard. Understanding how tokens are counted helps you predict costs, set appropriate budget limits, and identify opportunities to reduce spend. This page explains how tokens work, where to find usage data, and how to set limits to control costs.
+Inferoute records token usage for every request you make and surfaces that data both in API responses and in your dashboard. Understanding how tokens are counted helps you predict costs, set appropriate budget limits, and identify opportunities to reduce spend. This page explains how tokens work, where to find usage data, and how to set limits to control costs.
 
 ## What are tokens?
 
@@ -16,7 +16,7 @@ Tokens are the units LLMs use to process text. A token is roughly four character
 
 ## Usage in API responses
 
-Every response from TokenHub includes a `usage` object in the same format as the OpenAI API. You can read this field directly from the response to track consumption per request.
+Every response from Inferoute includes a `usage` object in the same format as the OpenAI API. You can read this field directly from the response to track consumption per request.
 
 ```json
 {
@@ -60,8 +60,8 @@ Read the `usage` field directly from the response object in your application.
 import openai
 
 client = openai.OpenAI(
-    base_url="https://api.tokenhub.ai/v1",
-    api_key="YOUR_TOKENHUB_API_KEY",
+    base_url="https://api.inferoute.ai/v1",
+    api_key="YOUR_INFEROUTE_API_KEY",
 )
 
 response = client.chat.completions.create(
@@ -79,8 +79,8 @@ print(f"Total tokens:      {usage.total_tokens}")
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  baseURL: "https://api.tokenhub.ai/v1",
-  apiKey: process.env.TOKENHUB_API_KEY,
+  baseURL: "https://api.inferoute.ai/v1",
+  apiKey: process.env.INFEROUTE_API_KEY,
 });
 
 const response = await client.chat.completions.create({
@@ -98,7 +98,7 @@ console.log(`Total tokens:      ${total_tokens}`);
 
 ### Dashboard usage views
 
-The TokenHub dashboard provides cumulative usage views that let you analyze consumption over time. You can filter by:
+The Inferoute dashboard provides cumulative usage views that let you analyze consumption over time. You can filter by:
 
 - **API key**: see which keys are driving the most usage
 - **Model**: compare consumption across GPT-4o, Claude, Gemini, and others
@@ -109,7 +109,7 @@ Navigate to **Dashboard → Usage** to access these views. You can also export u
 
 ## Cost calculation
 
-TokenHub bills based on the token rates published by each provider, plus a small routing fee per request.
+Inferoute bills based on the token rates published by each provider, plus a small routing fee per request.
 
 ```
 Request cost = (prompt_tokens × prompt_rate) + (completion_tokens × completion_rate) + routing_fee
@@ -123,7 +123,7 @@ You can set token budget limits to prevent unexpected spend.
 
 ### Monthly token budgets
 
-Set a monthly token limit for your entire organization or for a specific API key in **Dashboard → Settings → Usage Limits**. When the limit is reached, TokenHub returns a `429` error with a `budget_exceeded` code until the budget resets at the start of the next calendar month.
+Set a monthly token limit for your entire organization or for a specific API key in **Dashboard → Settings → Usage Limits**. When the limit is reached, Inferoute returns a `429` error with a `budget_exceeded` code until the budget resets at the start of the next calendar month.
 
 ### Per-key limits
 
